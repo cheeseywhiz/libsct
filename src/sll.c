@@ -1,3 +1,5 @@
+#include <stddef.h>
+#include <stdlib.h>
 #include "exception.h"
 #include "sll.h"
 
@@ -53,4 +55,14 @@ static void no_op_free(__attribute__((unused)) void *ptr) {};
 
 void sll_shallow_free(struct sll_node **self) {
         sll_deep_free(self, no_op_free);
+}
+
+size_t sll_length(struct sll_node **self) {
+        size_t length = 0;
+
+        for (struct sll_node *item = *self; item; item = item->next) {
+                length++;
+        }
+
+        return length;
 }

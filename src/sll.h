@@ -1,6 +1,8 @@
 #ifndef SLL_H
 #define SLL_H
 
+#include <stddef.h>
+
 struct sll_node {
         struct sll_node *next;
         void *ptr;
@@ -21,5 +23,7 @@ void sll_deep_free(struct sll_node **self, sll_free_func free_ptr);
 
 void sll_shallow_free(struct sll_node **self);
 /* Free all of the node structures in the list. */
+
+size_t sll_length(struct sll_node **self);
 
 #endif
