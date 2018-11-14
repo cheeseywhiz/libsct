@@ -24,11 +24,11 @@ void sll_deep_free(struct sll_node **self, sll_free_func free_ptr);
 void sll_shallow_free(struct sll_node **self);
 /* Free all of the node structures in the list. */
 
-size_t sll_length(struct sll_node **self);
+ssize_t sll_length(struct sll_node **self);
 /* Counts the number of nodes that are linked together.
    Returns the length of the list. */
 
-struct sll_node* sll_get_index(struct sll_node **self, size_t index);
-/* Return the index-th node in the list. */
+struct sll_node* sll_get_index(struct sll_node **self, ssize_t index);
+/* Return the index-th node in the list. Supports negative indexing. */
 
 #endif

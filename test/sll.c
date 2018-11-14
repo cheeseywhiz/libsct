@@ -52,7 +52,7 @@ SMALL_TEST test_length(struct sll_node **list) {
 #define CHECK_GET_INDEX(node) \
         ASSERT(node); \
         if (!(node)) { \
-                EXITFAIL(11); \
+                EXITFAIL(22); \
                 RETURN_SCORE(); \
         }
 
@@ -76,6 +76,23 @@ SMALL_TEST test_get_index(struct sll_node **list) {
 
         struct sll_node *empty_list = NULL;
         ASSERT(sll_get_index(&empty_list, 0) == NULL);
+
+        struct sll_node *fourth_alias = sll_get_index(list, -1);
+        CHECK_GET_INDEX(fourth_alias);
+        ASSERT(fourth_alias == fourth);
+        struct sll_node *third_alias = sll_get_index(list, -2);
+        CHECK_GET_INDEX(third_alias);
+        ASSERT(third_alias == third);
+        struct sll_node *second_alias = sll_get_index(list, -3);
+        CHECK_GET_INDEX(second_alias);
+        ASSERT(second_alias == second);
+        struct sll_node *first_alias = sll_get_index(list, -4);
+        CHECK_GET_INDEX(first_alias);
+        ASSERT(first_alias == first);
+
+        ASSERT(sll_get_index(list, -5) == NULL);
+        ASSERT(sll_get_index(list, -6) == NULL);
+        ASSERT(sll_get_index(&empty_list, -2) == NULL);
 
         RETURN_SCORE();
 }

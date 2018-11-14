@@ -15,11 +15,11 @@ void print_backtrace(void);
 #define EXCEPTION(args...)
 #else
 #define EXCEPTION(args...) \
-	print_backtrace(); \
-	STDERR("exception: "); \
-	FILE_LINE(); \
-	STDERR(args); \
-	STDERR("\n")
+        print_backtrace(); \
+        STDERR("exception: "); \
+        FILE_LINE(); \
+        STDERR(args); \
+        STDERR("\n")
 
 #endif  /* ifdef _SCT_SUPRESS_EXCEPTIONS */
 

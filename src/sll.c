@@ -57,8 +57,8 @@ void sll_shallow_free(struct sll_node **self) {
         sll_deep_free(self, no_op_free);
 }
 
-size_t sll_length(struct sll_node **self) {
-        size_t length = 0;
+ssize_t sll_length(struct sll_node **self) {
+        ssize_t length = 0;
 
         for (struct sll_node *item = *self; item; item = item->next) {
                 length++;
@@ -67,18 +67,26 @@ size_t sll_length(struct sll_node **self) {
         return length;
 }
 
-struct sll_node* sll_get_index(struct sll_node **self, size_t index) {
+struct sll_node* sll_get_index(struct sll_node **self, ssize_t index) {
         if (!*self) {
                 EXCEPTION("list is empty");
                 return NULL;
-        } else if (index >= sll_length(self)) {
-                EXCEPTION("index is greater than or equal to length");
+        }
+
+        ssize_t length = sll_length(self);
+
+        if (index < 0) {
+                index = length + index;
+        }
+
+        if (!(0 <= index && index < length)) {
+                EXCEPTION("index out of range");
                 return NULL;
         }
 
         struct sll_node *item = *self;
 
-        for (size_t i = 0; i < index; i++) {
+        for (ssize_t i = 0; i < index; i++) {
                 if (!item) {
                         EXCEPTION("item %ld is unexpectedly NULL", i);
                         return NULL;
