@@ -10,8 +10,8 @@ void print_backtrace(void) {
         char **strings = backtrace_symbols(array, actual_size);
         STDERR("backtrace: libsct version %s\n", SCT_VERSION);
 
-        /* Index 0 is argv[0], so we can skip */
-        for (size_t i = actual_size - 1; i >= 1; i--) {
+        /* Some entries on the ends are redundant */
+        for (size_t i = actual_size - 3; i >= 1; i--) {
                 STDERR("%s\n", strings[i]);
         }
 
