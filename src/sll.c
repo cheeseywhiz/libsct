@@ -66,3 +66,26 @@ size_t sll_length(struct sll_node **self) {
 
         return length;
 }
+
+struct sll_node* sll_get_index(struct sll_node **self, size_t index) {
+        if (!*self) {
+                EXCEPTION("list is empty");
+                return NULL;
+        } else if (index >= sll_length(self)) {
+                EXCEPTION("index is greater than or equal to length");
+                return NULL;
+        }
+
+        struct sll_node *item = *self;
+
+        for (size_t i = 0; i < index; i++) {
+                if (!item) {
+                        EXCEPTION("item %ld is unexpectedly NULL", i);
+                        return NULL;
+                }
+
+                item = item->next;
+        }
+
+        return item;
+}
