@@ -34,8 +34,8 @@ struct score {
         subscore = score; \
         ADD_SCORE(subscore.passing, subscore.failing)
 #define RETURN_SCORE() return score_local
-#define EXITFAIL(n_cases) \
-        ADD_SCORE(0, n_cases - PASSING); \
+#define EXIT_TEST(n_tests) \
+        ADD_FAIL(n_tests - (PASSING + FAILING)); \
         RETURN_SCORE()
 
 #define REPORT_SCORE(passing, failing) printf("Pass: %ld\nFail: %ld\n", passing, failing)

@@ -21,6 +21,9 @@ void sll_deep_free(struct sll_node **self, sll_free_func free_ptr);
 /* Call the free_ptr function on every member of the list and free each
    node. */
 
+void sll_free_all(struct sll_node **self);
+/* Call free on every ptr and node in the list. */
+
 void sll_shallow_free(struct sll_node **self);
 /* Free all of the node structures in the list. */
 
@@ -30,5 +33,9 @@ ssize_t sll_length(struct sll_node **self);
 
 struct sll_node* sll_get_index(struct sll_node **self, ssize_t index);
 /* Return the index-th node in the list. Supports negative indexing. */
+
+struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, ssize_t step);
+/* Return pointer to the first node in a new list constructed from indexes from start to end with
+   step inbetween. */
 
 #endif
