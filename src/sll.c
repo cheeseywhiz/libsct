@@ -216,3 +216,30 @@ struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, s
         free(array);
         return slice;
 }
+
+#define XOR(p, q) (((p) || (q)) && !((p) && (q)))
+
+int sll_equals(struct sll_node **self, struct sll_node **other) {
+        if (XOR(*self, *other)) {
+                /* One or the other is NULL */
+                return 0;
+        } else if (!(*self && *other)) {
+                /* Both NULL */
+                return 1;
+        }  /* else: neither NULL */
+
+        struct sll_node *self_item = *self;
+        struct sll_node *other_item = *other;
+
+        for(; self_item && other_item; ) {
+                if (self_item->ptr != other_item->ptr) {
+                        return 0;
+                }
+
+                self_item = self_item->next;
+                other_item = other_item->next;
+        }
+
+        /* Even if the first few elements are equal, test if they both end at the same place. */
+        return !self_item && !other_item;
+}

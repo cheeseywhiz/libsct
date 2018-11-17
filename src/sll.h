@@ -38,4 +38,7 @@ struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, s
 /* Return pointer to the first node in a new list constructed from indexes from start to end with
    step inbetween. */
 
+int sll_equals(struct sll_node **self, struct sll_node **other);
+/* Return if all pointers in self are equal to all pointers in other. */
+
 #endif
