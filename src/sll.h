@@ -2,6 +2,7 @@
 #define SLL_H
 
 #include <stddef.h>
+#include "sct.h"
 
 struct sll_node {
         struct sll_node *next;
@@ -13,10 +14,7 @@ struct sll_node* sll_append(struct sll_node **self, void *ptr);
    *self is set to the new node, thereby creating a new list. Returns the new node. The list should
    be passed to any of the sll free methods. */
 
-typedef void (*sll_free_func)(void *ptr);
-/* Example: free */
-
-void sll_deep_free(struct sll_node **self, sll_free_func free_ptr);
+void sll_deep_free(struct sll_node **self, sct_free_func free_ptr);
 /* Call the free_ptr function on each member of the list and free each node. */
 
 void sll_free_all(struct sll_node **self);

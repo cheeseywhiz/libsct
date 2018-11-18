@@ -1,6 +1,7 @@
 #ifndef TEST_H
 #define TEST_H
 
+#include <stddef.h>
 #include <stdio.h>
 #include "sct_internal.h"
 
@@ -72,5 +73,78 @@ struct score {
         puts("test summary:"); \
         REPORT_CURRENT(); \
         return FAILING < 255 || FAILING % 256 ? FAILING : 255
+
+struct slice_args {
+        ssize_t start;
+        ssize_t end;
+        ssize_t step;
+};
+
+struct slice_case {
+        ssize_t index;
+        int expected;
+};
+
+struct slice_case_group {
+        struct slice_args args;
+        struct slice_case cases[3];
+};
+
+/* struct slice_case_group case_groups[] */
+#define SLICE_CASE_GROUPS { \
+                {{10, 50, 1}, {     /* Basic usage */ \
+                        {0, 10}, \
+                        {1, 11}, \
+                        {-1, 49}, \
+                }}, \
+                {{50, 10, -1}, { \
+                        {0, 50}, \
+                        {1, 49}, \
+                        {-1, 11}, \
+                }}, \
+                {{10, 45, 10}, {    /* Non-one step */ \
+                        {0, 10}, \
+                        {1, 20}, \
+                        {-1, 40}, \
+                }}, \
+                {{45, 10, -10}, { \
+                        {0, 45}, \
+                        {1, 35}, \
+                        {-1, 15}, \
+                }}, \
+                {{-40, -10, 2}, {   /* Negative indices */ \
+                        {0, 60}, \
+                        {1, 62}, \
+                        {-1, 88}, \
+                }}, \
+                {{-10, -40, -2}, { \
+                        {0, 90}, \
+                        {1, 88}, \
+                        {-1, 62}, \
+                }}, \
+                {{-200, 200, 5}, {  /* Iterate through right and left bounds */ \
+                        {0, 0}, \
+                        {1, 5}, \
+                        {-1, 95}, \
+                }}, \
+                {{200, -200, -5}, { \
+                        {0, 99}, \
+                        {1, 94}, \
+                        {-1, 4}, \
+                }}, \
+        }
+
+/* struct slice_args null_cases[]
+   Slices that should return an empty list */
+#define EMPTY_CASES { \
+                {200, 300, 1},  /* out of bounds */ \
+                {300, 200, -1}, \
+                {-300, -200, 1}, \
+                {-200, 300, -1}, \
+                {50, 10, 1},    /* start > end */ \
+                {-50, -90, 1}, \
+                {10, 50, -1},   /* start < end on reverse slice */ \
+                {-90, -50, -1}, \
+        }
 
 #endif

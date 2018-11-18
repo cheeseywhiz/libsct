@@ -9,7 +9,7 @@ SCT_VERSION:=0.0.0
 
 OBJECTS:=exception sll arr
 TEST_OBJS:=sll arr
-SRC_HDR:=$(OBJECTS) sct_internal
+SRC_HDR:=$(OBJECTS) sct_internal sct
 TEST_HDR:=test
 
 CFLAGS+=-Wall -Wextra -std=gnu11 -fPIC

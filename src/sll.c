@@ -39,7 +39,7 @@ struct sll_node* sll_append(struct sll_node **self, void *ptr) {
         return new_node;
 }
 
-void sll_deep_free(struct sll_node **self, sll_free_func free_ptr) {
+void sll_deep_free(struct sll_node **self, sct_free_func free_ptr) {
         struct sll_node *item;
         struct sll_node *item_alias;
 

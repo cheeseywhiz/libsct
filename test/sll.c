@@ -91,22 +91,6 @@ exit:
         EXIT_TEST(22);
 }
 
-struct slice_args {
-        ssize_t start;
-        ssize_t end;
-        ssize_t step;
-};
-
-struct slice_case {
-        ssize_t index;
-        int expected;
-};
-
-struct slice_case_group {
-        struct slice_args args;
-        struct slice_case cases[3];
-};
-
 UNIT_TEST test_slice(void) {
         SCORE_INIT();
         struct sll_node *numbers = NULL;
@@ -121,48 +105,7 @@ UNIT_TEST test_slice(void) {
                 *((int*) new_node->ptr) = i;
         }
 
-        struct slice_case_group case_groups[] = {
-                {{10, 50, 1}, {     /* Basic usage */
-                        {0, 10},
-                        {1, 11},
-                        {-1, 49},
-                }},
-                {{50, 10, -1}, {
-                        {0, 50},
-                        {1, 49},
-                        {-1, 11},
-                }},
-                {{10, 45, 10}, {    /* Non-one step */
-                        {0, 10},
-                        {1, 20},
-                        {-1, 40},
-                }},
-                {{45, 10, -10}, {
-                        {0, 45},
-                        {1, 35},
-                        {-1, 15},
-                }},
-                {{-40, -10, 2}, {   /* Negative indices */
-                        {0, 60},
-                        {1, 62},
-                        {-1, 88},
-                }},
-                {{-10, -40, -2}, {
-                        {0, 90},
-                        {1, 88},
-                        {-1, 62},
-                }},
-                {{-200, 200, 5}, {  /* Iterate through right and left bounds */
-                        {0, 0},
-                        {1, 5},
-                        {-1, 95},
-                }},
-                {{200, -200, -5}, {
-                        {0, 99},
-                        {1, 94},
-                        {-1, 4},
-                }},
-        };
+        struct slice_case_group case_groups[] = SLICE_CASE_GROUPS;
 
         for (size_t group_i = 0; group_i < ARRAY_LENGTH(case_groups); group_i++) {
                 struct slice_case_group case_group = case_groups[group_i];
@@ -189,20 +132,10 @@ UNIT_TEST test_slice(void) {
                 sll_shallow_free(&slice);
         }
 
-        struct slice_args null_cases[] = {
-                {10, 50, 0},    /* zero step */
-                {200, 300, 1},  /* out of bounds */
-                {300, 200, -1},
-                {-300, -200, 1},
-                {-200, 300, -1},
-                {50, 10, 1},    /* start > end */
-                {-50, -90, 1},
-                {10, 50, -1},   /* start < end on reverse slice */
-                {-90, -50, -1},
-        };
+        struct slice_args empty_cases[] = EMPTY_CASES;
 
-        for (size_t null_i = 0; null_i < ARRAY_LENGTH(null_cases); null_i++) {
-                struct slice_args args = null_cases[null_i];
+        for (size_t null_i = 0; null_i < ARRAY_LENGTH(empty_cases); null_i++) {
+                struct slice_args args = empty_cases[null_i];
                 struct sll_node *slice = sll_slice(&numbers, args.start, args.end, args.step);
                 ASSERT(!slice);
 
@@ -211,15 +144,19 @@ UNIT_TEST test_slice(void) {
                 }
         }
 
+        /* Another empty case */
         struct sll_node *empty_list = NULL;
-        ASSERT(sll_slice(&empty_list, 2, 5, 1) == NULL);   /* Slice on empty list is empty list */
+        ASSERT(!sll_slice(&empty_list, 2, 5, 1));
+
+        /* error case */
+        ASSERT(!sll_slice(&numbers, 2, 5, 0));
 
 exit:
         sll_free_all(&numbers);
         EXIT_TEST(
                 ARRAY_LENGTH(case_groups) * (1 + ARRAY_LENGTH(case_groups[0].cases))
-                + ARRAY_LENGTH(null_cases)
-                + 1
+                + ARRAY_LENGTH(empty_cases)
+                + 2
         );
 }
 
