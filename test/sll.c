@@ -283,6 +283,30 @@ exit:
         EXIT_TEST(3);
 }
 
+UNIT_TEST test_find(struct sll_node *list, char **strings, size_t n_strings) {
+        SCORE_INIT();
+
+        for (size_t string_i = 0; string_i < n_strings; string_i++) {
+                char *string = strings[string_i];
+                ssize_t index = sll_find(&list, string);
+                ASSERT(index >= 0);
+                struct sll_node *item = sll_get_index(&list, index);
+
+                if (item) {
+                        ASSERT(string == item->ptr);
+                }
+        }
+
+        ASSERT(sll_find(&list, "random string") < 0);
+        ASSERT(sll_find(&list, NULL) < 0);
+
+        struct sll_node *empty_list = NULL;
+        ASSERT(sll_find(&empty_list, "something else") < 0);
+        ASSERT(sll_find(&empty_list, NULL) < 0);
+
+        EXIT_TEST((2 * n_strings) + 4);
+}
+
 MODULE_TEST sll_test_main(void) {
         SCORE_INIT();
         char *strings[] = {
@@ -291,14 +315,16 @@ MODULE_TEST sll_test_main(void) {
                 "Sudan (third world)",
                 "append not to first",
         };
+        size_t n_strings = ARRAY_LENGTH(strings);
         struct sll_node *list = NULL;
         UNIT_REPORT("sll_append()", test_append(&list, strings));
         CHECK_NODE(list);
         UNIT_REPORT("sll_length()", test_length(&list));
         UNIT_REPORT("sll_get_index()", test_get_index(&list));
         UNIT_REPORT("sll_slice()", test_slice());
-        UNIT_REPORT("sll_equals()", test_equals(list, strings, ARRAY_LENGTH(strings)));
+        UNIT_REPORT("sll_equals()", test_equals(list, strings, n_strings));
         UNIT_REPORT("sll_copy()", test_copy(list));
+        UNIT_REPORT("sll_find()", test_find(list, strings, n_strings));
 
 exit:
         sll_shallow_free(&list);

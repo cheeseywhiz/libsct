@@ -44,4 +44,8 @@ int sll_equals(struct sll_node **self, struct sll_node **other);
 struct sll_node* sll_copy(struct sll_node **self);
 /* Return a new list with all pointers copied over from the list. */
 
+ssize_t sll_find(struct sll_node **self, void *ptr);
+/* Return the index of the first occurance of ptr in the list. Returns -1 if ptr is not in the
+   list. */
+
 #endif

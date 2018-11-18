@@ -247,3 +247,19 @@ int sll_equals(struct sll_node **self, struct sll_node **other) {
 struct sll_node* sll_copy(struct sll_node **self) {
         return sll_slice(self, 0, sll_length(self), 1);
 }
+
+ssize_t sll_find(struct sll_node **self, void *ptr) {
+        struct sll_node *item = *self;
+        ssize_t index = 0;
+
+        for (; item; ) {
+                if (item->ptr == ptr) {
+                        return index;
+                }
+
+                item = item->next;
+                index++;
+        }
+
+        return -1;
+}
