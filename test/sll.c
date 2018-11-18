@@ -307,6 +307,28 @@ UNIT_TEST test_find(struct sll_node *list, char **strings, size_t n_strings) {
         EXIT_TEST((2 * n_strings) + 4);
 }
 
+#define POP_CASE(list_i, string_i) \
+        observed = sll_pop(list, (list_i)); \
+        expected = strings[(string_i)]; \
+        if (observed) { \
+                ASSERT(observed == expected); \
+        }
+
+UNIT_TEST test_pop(struct sll_node **list, char **strings) {
+        SCORE_INIT();
+        struct sll_node *empty_list = NULL;
+        ASSERT(!sll_pop(&empty_list, 0));
+        ASSERT(!sll_pop(list, 5));  /* out of range */
+
+        char *observed, *expected;
+        POP_CASE(-2, 2);
+        POP_CASE(0, 0);
+        POP_CASE(1, 3);
+        POP_CASE(0, 1);
+        ASSERT(!*list);
+        EXIT_TEST(7);
+}
+
 MODULE_TEST sll_test_main(void) {
         SCORE_INIT();
         char *strings[] = {
@@ -325,6 +347,7 @@ MODULE_TEST sll_test_main(void) {
         UNIT_REPORT("sll_equals()", test_equals(list, strings, n_strings));
         UNIT_REPORT("sll_copy()", test_copy(list));
         UNIT_REPORT("sll_find()", test_find(list, strings, n_strings));
+        UNIT_REPORT("sll_pop()", test_pop(&list, strings));
 
 exit:
         sll_shallow_free(&list);

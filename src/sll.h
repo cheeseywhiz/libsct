@@ -47,4 +47,8 @@ struct sll_node* sll_copy(struct sll_node **self);
 ssize_t sll_find(struct sll_node **self, void *ptr);
 /* Return the index of the first occurance of ptr in the list, or -1 if ptr is not in the list. */
 
+void* sll_pop(struct sll_node **self, ssize_t index);
+/* Remove the node at index of the list and return the node's ptr. The node will be freed. Will
+   print an exception and return NULL if list is empty or if index is out of range. */
+
 #endif

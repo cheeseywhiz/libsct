@@ -71,28 +71,28 @@ ssize_t sll_length(struct sll_node **self) {
         return length;
 }
 
+#define CHECK_INDEX() \
+        ssize_t length = sll_length(self); \
+        if (index < 0) { \
+                index += length; \
+        } \
+        if (!(0 <= index && index < length)) { \
+                EXCEPTION("user: index out of range"); \
+                return NULL; \
+        }
+
 struct sll_node* sll_get_index(struct sll_node **self, ssize_t index) {
         if (!*self) {
-                EXCEPTION("list is empty");
+                EXCEPTION("user: list is empty");
                 return NULL;
         }
 
-        ssize_t length = sll_length(self);
-
-        if (index < 0) {
-                index += length;
-        }
-
-        if (!(0 <= index && index < length)) {
-                EXCEPTION("index out of range");
-                return NULL;
-        }
-
+        CHECK_INDEX();
         struct sll_node *item = *self;
 
         for (ssize_t i = 0; i < index; i++) {
                 if (!item) {
-                        EXCEPTION("item %ld is unexpectedly NULL", i);
+                        EXCEPTION("internal: item %ld is unexpectedly NULL", i);
                         return NULL;
                 }
 
@@ -175,7 +175,7 @@ struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, s
         if (!*self) {
                 return NULL;
         } else if (!step) {
-                EXCEPTION("cannot have zero step");
+                EXCEPTION("user: cannot have zero step");
                 return NULL;
         } else if (step < 0) {
                 return sll_slice_reverse(self, start, end, step);
@@ -262,4 +262,46 @@ ssize_t sll_find(struct sll_node **self, void *ptr) {
         }
 
         return -1;
+}
+
+void* sll_pop(struct sll_node **self, ssize_t index) {
+        if (!*self) {
+                EXCEPTION("user: can't pop on empty list");
+                return NULL;
+        }
+
+        CHECK_INDEX();
+        struct sll_node *item = NULL;
+
+        if (index == 0) {
+                item = *self;
+                *self = item->next;
+        } else {
+                struct sll_node *before = sll_get_index(self, index - 1);
+
+                if (!before) {
+                        EXCEPTION("internal: before node is NULL");
+                        return NULL;
+                }
+
+                item = before->next;
+
+                if (!item) {
+                        EXCEPTION("internal: node after before is NULL");
+                        return NULL;
+                }
+
+                before->next = item->next;
+        }
+
+        void *ptr;
+
+        if (item) {
+                ptr = item->ptr;
+                free(item);
+        } else {
+                ptr = NULL;
+        }
+
+        return ptr;
 }

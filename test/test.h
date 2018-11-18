@@ -38,6 +38,7 @@ struct score {
         if (bool) { \
                 PASS(); \
         } else { \
+                fprintf(stderr, "Fail on line %d (%s)\n", __LINE__, __FILE__); \
                 FAIL(); \
         }
 
