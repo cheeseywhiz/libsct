@@ -268,6 +268,21 @@ exit:
         EXIT_TEST(6);
 }
 
+UNIT_TEST test_copy(struct sll_node *list) {
+        SCORE_INIT();
+        struct sll_node *list_copy = sll_copy(&list);
+        ASSERT_NODE(list_copy);
+        ASSERT(sll_equals(&list, &list_copy));
+
+        struct sll_node *empty_list = NULL;
+        struct sll_node *empty_copy = sll_copy(&empty_list);
+        ASSERT(!empty_copy);
+
+exit:
+        sll_shallow_free(&list_copy);
+        EXIT_TEST(3);
+}
+
 MODULE_TEST sll_test_main(void) {
         SCORE_INIT();
         char *strings[] = {
@@ -283,6 +298,7 @@ MODULE_TEST sll_test_main(void) {
         UNIT_REPORT("sll_get_index()", test_get_index(&list));
         UNIT_REPORT("sll_slice()", test_slice());
         UNIT_REPORT("sll_equals()", test_equals(list, strings, ARRAY_LENGTH(strings)));
+        UNIT_REPORT("sll_copy()", test_copy(list));
 
 exit:
         sll_shallow_free(&list);

@@ -243,3 +243,7 @@ int sll_equals(struct sll_node **self, struct sll_node **other) {
         /* Even if the first few elements are equal, test if they both end at the same place. */
         return !self_item && !other_item;
 }
+
+struct sll_node* sll_copy(struct sll_node **self) {
+        return sll_slice(self, 0, sll_length(self), 1);
+}
