@@ -45,6 +45,35 @@ exit:
         EXIT_TEST((3 * n_strings) + 1);
 }
 
+UNIT_TEST test_get_index(struct array *array, char **strings) {
+        SCORE_INIT();
+        ASSERT(arr_get_index(array, 0) == strings[0]);
+        ASSERT(arr_get_index(array, 1) == strings[1]);
+        ASSERT(arr_get_index(array, 2) == strings[2]);
+        ASSERT(arr_get_index(array, 3) == strings[3]);
+
+        ASSERT(arr_get_index(array, -4) == strings[0]);
+        ASSERT(arr_get_index(array, -3) == strings[1]);
+        ASSERT(arr_get_index(array, -2) == strings[2]);
+        ASSERT(arr_get_index(array, -1) == strings[3]);
+
+        ASSERT(!arr_get_index(array, 5));
+        ASSERT(!arr_get_index(array, -5));
+        ASSERT(!arr_get_index(NULL, 0));
+
+        struct array empty_list;
+
+        if (arr_init(&empty_list)) {
+                goto exit;
+        }
+
+        ASSERT(!arr_get_index(&empty_list, 0));
+
+exit:
+        arr_free(&empty_list);
+        EXIT_TEST(12);
+}
+
 #define FAILSAFE() \
         if (FAILING) { \
                 goto exit; \
@@ -64,6 +93,7 @@ MODULE_TEST arr_test_main(void) {
         FAILSAFE();
         UNIT_REPORT("arr_append()", test_append(&array, strings, n_strings));
         FAILSAFE();
+        UNIT_REPORT("arr_get_index()", test_get_index(&array, strings));
 
 exit:
         arr_free(&array);

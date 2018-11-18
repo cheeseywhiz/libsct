@@ -17,6 +17,10 @@ void arr_free(struct array *self);
 /* Free the data associated with the array. */
 
 int arr_append(struct array *self, void *ptr);
-/* Add the ptr to the end of the list. Returns zero if successful or nonzero otherwise. */
+/* Add the ptr to the end of the array. Returns zero if successful or nonzero otherwise. */
+
+void* arr_get_index(struct array *self, ssize_t index);
+/* Return the index-th item in the array. Supports negative indexing. Will print an exception and
+   return NULL if the list is empty or the desired index is out of range. */
 
 #endif
