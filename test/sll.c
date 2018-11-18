@@ -1,6 +1,6 @@
 #include <stddef.h>
+#include <stdlib.h>
 #include "test.h"
-#include "exception.h"
 #include "sll.h"
 
 #define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
