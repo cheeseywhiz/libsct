@@ -1,9 +1,8 @@
 #include <stddef.h>
 #include <stdlib.h>
+#include "sct_internal.h"
 #include "test.h"
 #include "sll.h"
-
-#define ARRAY_LENGTH(arr) (sizeof(arr) / sizeof(arr[0]))
 
 #define CHECK_NODE(node) \
         if (!(node)) { \

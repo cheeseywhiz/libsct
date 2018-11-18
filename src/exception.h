@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "sct_internal.h"
 
 void print_backtrace(void);
 
-#define STDERR(args...) fprintf(stderr, args)
 #define FILE_LINE() STDERR("%s (%d): ", __FILE__, __LINE__)
 
 #ifdef _SCT_SUPPRESS_EXCEPTIONS

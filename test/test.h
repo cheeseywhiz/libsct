@@ -2,6 +2,7 @@
 #define TEST_H
 
 #include <stdio.h>
+#include "sct_internal.h"
 
 struct score {
         size_t passing;
@@ -38,7 +39,7 @@ struct score {
         if (bool) { \
                 PASS(); \
         } else { \
-                fprintf(stderr, "Fail on line %d (%s)\n", __LINE__, __FILE__); \
+                STDERR("Fail on line %d (%s)\n", __LINE__, __FILE__); \
                 FAIL(); \
         }
 
