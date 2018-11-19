@@ -134,3 +134,28 @@ exit:
 
         return exit_code;
 }
+
+int arr_equals(struct array *self, struct array *other) {
+        int is_equal = 0;
+        NULL_GUARD();
+
+        if (!other) {
+                EXCEPTION("user: other array is NULL");
+                goto exit;
+        }
+
+        if (self->length != other->length) {
+                goto exit;
+        }
+
+        for (ssize_t index = 0; index < self->length; index++) {
+                if (self->array[index] != other->array[index]) {
+                        goto exit;
+                }
+        }
+
+        is_equal = 1;
+
+exit:
+        return is_equal;
+}

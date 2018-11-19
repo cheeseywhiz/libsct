@@ -159,6 +159,84 @@ exit:
         );
 }
 
+UNIT_TEST test_equals(struct array *array) {
+        SCORE_INIT();
+        struct array array_copy, numbers, empty_list, mid_slice, mid_slice_copy, beginning_slice;
+
+        if (arr_init(&array_copy)) {
+                goto exit;
+        }
+
+        for (ssize_t index = 0; index < array->length; index++) {
+                if (arr_append(&array_copy, arr_get_index(array, index))) {
+                        goto exit;
+                }
+        }
+
+        ASSERT(arr_equals(array, &array_copy));
+        ASSERT(arr_equals(&array_copy, array));  /* reflexive property */
+
+        if (arr_init(&numbers)) {
+                goto exit;
+        }
+
+        for (int number_i = 0; number_i < 100; number_i++) {
+                int *item = malloc(sizeof(int));
+
+                if (!item) {
+                        goto exit;
+                }
+
+                *item = number_i;
+
+                if (arr_append(&numbers, item)) {
+                        goto exit;
+                }
+        }
+
+        if (arr_init(&empty_list)) {
+                goto exit;
+        }
+
+        ASSERT(!arr_equals(&numbers, &empty_list));
+        ASSERT(!arr_equals(&empty_list, &numbers));
+
+        ASSERT(arr_equals(array, array));  /* is equal to self */
+        ASSERT(arr_equals(&empty_list, &empty_list));
+
+        if (arr_slice(&numbers, &mid_slice, 50, 75, 1) ||
+                        arr_slice(&numbers, &mid_slice_copy, 50, 75, 1)) {
+                goto exit;
+        }
+
+        ASSERT(arr_equals(&mid_slice, &mid_slice_copy));
+        ASSERT(arr_equals(&mid_slice_copy, &mid_slice));
+
+        if (arr_slice(&numbers, &beginning_slice, 0, 25, 1)) {
+                goto exit;
+        }
+
+        ASSERT(!arr_equals(&numbers, &beginning_slice));
+        ASSERT(!arr_equals(&beginning_slice, &numbers));
+
+        ASSERT(!arr_equals(&beginning_slice, &mid_slice));  /* same lengths */
+        ASSERT(!arr_equals(&mid_slice, &beginning_slice));
+
+        /* error cases */
+        ASSERT(!arr_equals(&numbers, NULL));
+        ASSERT(!arr_equals(NULL, &numbers));
+        ASSERT(!arr_equals(NULL, NULL));
+
+exit:
+        arr_free(&array_copy);
+        arr_free_all(&numbers);
+        arr_free(&empty_list);
+        arr_free(&mid_slice);
+        arr_free(&mid_slice_copy);
+        arr_free(&beginning_slice);
+        EXIT_TEST(15);
+}
+
 #define FAILSAFE() \
         if (FAILING) { \
                 goto exit; \
@@ -180,6 +258,7 @@ MODULE_TEST arr_test_main(void) {
         FAILSAFE();
         UNIT_REPORT("arr_get_index()", test_get_index(&array, strings));
         UNIT_REPORT("arr_slice()", test_slice());
+        UNIT_REPORT("arr_equals()", test_equals(&array));
 
 exit:
         arr_free(&array);

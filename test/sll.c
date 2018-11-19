@@ -172,7 +172,7 @@ UNIT_TEST test_equals(struct sll_node *list, char **strings, size_t n_strings) {
         ASSERT(sll_equals(&list, &list_copy));
         ASSERT(sll_equals(&list_copy, &list));  /* reflexive property */
 
-        for (size_t big_i = 0; big_i < 200; big_i++) {
+        for (size_t big_i = 0; big_i < 100; big_i++) {
                 item = sll_append(&numbers, malloc(sizeof(size_t)));
 
                 if (!(item && item->ptr)) {
@@ -183,17 +183,25 @@ UNIT_TEST test_equals(struct sll_node *list, char **strings, size_t n_strings) {
         }
 
         ASSERT(!sll_equals(&numbers, &empty_list));
+        ASSERT(!sll_equals(&empty_list, &numbers));
 
-        mid_slice = sll_slice(&numbers, 50, 125, 1);
-        mid_slice_copy = sll_slice(&numbers, 50, 125, 1);
+        mid_slice = sll_slice(&numbers, 50, 75, 1);
+        mid_slice_copy = sll_slice(&numbers, 50, 75, 1);
         CHECK_NODE(mid_slice);
         CHECK_NODE(mid_slice_copy);
         ASSERT(sll_equals(&mid_slice, &mid_slice_copy));
         ASSERT(sll_equals(&mid_slice_copy, &mid_slice));
 
-        beginning_slice = sll_slice(&numbers, 0, 50, 1);
+        beginning_slice = sll_slice(&numbers, 0, 25, 1);
         CHECK_NODE(beginning_slice);
         ASSERT(!sll_equals(&numbers, &beginning_slice));
+        ASSERT(!sll_equals(&beginning_slice, &numbers));
+
+        ASSERT(!sll_equals(&beginning_slice, &mid_slice));  /* same lengths */
+        ASSERT(!sll_equals(&mid_slice, &beginning_slice));
+
+        ASSERT(sll_equals(&numbers, &numbers));  /* is equal to self */
+        ASSERT(sll_equals(&empty_list, &empty_list));
 
 exit:
         sll_shallow_free(&list_copy);
@@ -201,7 +209,7 @@ exit:
         sll_shallow_free(&mid_slice);
         sll_shallow_free(&mid_slice_copy);
         sll_shallow_free(&beginning_slice);
-        EXIT_TEST(6);
+        EXIT_TEST(12);
 }
 
 UNIT_TEST test_copy(struct sll_node *list) {

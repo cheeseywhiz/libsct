@@ -35,4 +35,7 @@ int arr_slice(struct array *self, struct array *slice, ssize_t start, ssize_t en
    step in between. Will print an exception and return NULL if step is 0. slice should be passed to
    arr_free later. Returns zero if successful or nonzero otherwise. */
 
+int arr_equals(struct array *self, struct array *other);
+/* Return if all pointers in self are equal to all pointers in other. */
+
 #endif
