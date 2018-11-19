@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "exception.h"
 #include "sll.h"
+#include "slice.h"
 
 static struct sll_node* sll_new_node(void *ptr) {
         struct sll_node *self = malloc(sizeof(struct sll_node));
@@ -127,76 +128,15 @@ static void** sll_to_array(struct sll_node **self) {
         return array;
 }
 
-static struct sll_node* sll_slice_reverse(struct sll_node **self, ssize_t start, ssize_t end,
-                                          ssize_t step) {
-        /* *self != NULL && step < 0 */
-        ssize_t length = sll_length(self);
-
-        if (end < -length) {
-                end = -1;
-        } else if (end < 0) {
-                end += length;
-        }
-
-        if (start < -length) {
-                if (end == -1) {
-                        /* both start and end are out of bounds */
-                        start = -1;
-                } else {
-                        start = 0;
-                }
-        } else if (start < 0) {
-                start += length;
-        } else if (start >= length) {
-                start = length - 1;
-        }
-
-        void **array = sll_to_array(self);
-
-        if (!array) {
-                return NULL;
-        }
-
-        struct sll_node *slice = NULL;
-
-        for (ssize_t index = start; index > end; index += step) {
-                if (!sll_append(&slice, array[index])) {
-                        sll_shallow_free(&slice);
-                        free(array);
-                        return NULL;
-                }
-        }
-
-        free(array);
-        return slice;
-}
-
 struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, ssize_t step) {
         if (!*self) {
                 return NULL;
         } else if (!step) {
                 EXCEPTION("user: cannot have zero step");
                 return NULL;
-        } else if (step < 0) {
-                return sll_slice_reverse(self, start, end, step);
         }
 
-        ssize_t length = sll_length(self);
-
-        if (start < -length) {
-                start = 0;
-        } else if (start < 0) {
-                start += length;
-        }
-
-        if (end < -length) {
-                end = 0;
-        } else if (end < 0) {
-                end += length;
-        } else if (end >= length) {
-                end = length;
-        }
-
+        struct slice_bounds bounds = get_slice_bounds(sll_length(self), start, end, step);
         void **array = sll_to_array(self);
 
         if (!array) {
@@ -205,7 +145,9 @@ struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, s
 
         struct sll_node *slice = NULL;
 
-        for (ssize_t index = start; index < end; index += step) {
+        for (ssize_t index = bounds.start;
+             (step > 0) ? (index < bounds.end) : (index > bounds.end);
+             index += step) {
                 if (!sll_append(&slice, array[index])) {
                         sll_shallow_free(&slice);
                         free(array);
