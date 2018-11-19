@@ -168,3 +168,19 @@ int arr_copy(struct array *self, struct array *copy) {
 exit:
         return exit_code;
 }
+
+ssize_t arr_find(struct array *self, void *item) {
+        ssize_t index = -1;
+        NULL_GUARD();
+
+        for (index = 0; index < self->length; index++) {
+                if (self->array[index] == item) {
+                        return index;
+                }
+        }
+
+        index = -1;
+
+exit:
+        return index;
+}

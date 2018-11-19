@@ -42,4 +42,7 @@ int arr_copy(struct array *self, struct array *copy);
 /* Initialize a new array on copy that is a copy of the array. Returns zero if successful or nonzero
    otherwise. copy should be passed to arr_free later. */
 
+ssize_t arr_find(struct array *self, void *item);
+/* Return the index of the first occurance of ptr in the array, or -1 if ptr is not in the array. */
+
 #endif

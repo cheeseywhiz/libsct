@@ -275,6 +275,46 @@ exit:
         EXIT_TEST(7);
 }
 
+UNIT_TEST test_find(struct array *array, char **strings, size_t n_strings) {
+        SCORE_INIT();
+
+        for (size_t string_i = 0; string_i < n_strings; string_i++) {
+                char *string = strings[string_i];
+                ssize_t index = arr_find(array, string);
+                ASSERT(index >= 0);
+
+                if (index < 0) {
+                        continue;
+                }
+
+                char *item = arr_get_index(array, index);
+
+                if (item) {
+                        ASSERT(item == string);
+                }
+        }
+
+        ASSERT(arr_find(array, "random string") < 0);
+        ASSERT(arr_find(array, NULL) < 0);
+
+        struct array empty_list;
+
+        if (arr_init(&empty_list)) {
+                goto exit;
+        }
+
+        ASSERT(arr_find(&empty_list, "they'll upvote") < 0);
+        ASSERT(arr_find(&empty_list, NULL) < 0);
+
+        /* error cases */
+        ASSERT(arr_find(NULL, "literally anything") < 0);
+        ASSERT(arr_find(NULL, NULL) < 0);
+
+exit:
+        arr_free(&empty_list);
+        EXIT_TEST((2 * n_strings) + 6);
+}
+
 #define FAILSAFE() \
         if (FAILING) { \
                 goto exit; \
@@ -298,6 +338,7 @@ MODULE_TEST arr_test_main(void) {
         UNIT_REPORT("arr_slice()", test_slice());
         UNIT_REPORT("arr_equals()", test_equals(&array));
         UNIT_REPORT("arr_copy()", test_copy(&array));
+        UNIT_REPORT("arr_find()", test_find(&array, strings, n_strings));
 
 exit:
         arr_free(&array);
