@@ -38,4 +38,8 @@ int arr_slice(struct array *self, struct array *slice, ssize_t start, ssize_t en
 int arr_equals(struct array *self, struct array *other);
 /* Return if all pointers in self are equal to all pointers in other. */
 
+int arr_copy(struct array *self, struct array *copy);
+/* Initialize a new array on copy that is a copy of the array. Returns zero if successful or nonzero
+   otherwise. copy should be passed to arr_free later. */
+
 #endif

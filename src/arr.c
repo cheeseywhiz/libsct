@@ -159,3 +159,12 @@ int arr_equals(struct array *self, struct array *other) {
 exit:
         return is_equal;
 }
+
+int arr_copy(struct array *self, struct array *copy) {
+        int exit_code = 1;
+        NULL_GUARD();
+        exit_code = arr_slice(self, copy, 0, self->length, 1);
+
+exit:
+        return exit_code;
+}

@@ -237,6 +237,44 @@ exit:
         EXIT_TEST(15);
 }
 
+UNIT_TEST test_copy(struct array *array) {
+        SCORE_INIT();
+        struct array copy, empty_list, empty_copy;
+        int exit_code = arr_copy(array, &copy);
+        ASSERT(!exit_code);
+
+        if (exit_code) {
+                goto exit;
+        }
+
+        ASSERT(arr_equals(array, &copy));
+        arr_free(&copy);
+
+        if (arr_init(&empty_list)) {
+                goto exit;
+        }
+
+        exit_code = arr_copy(&empty_list, &empty_copy);
+        ASSERT(!exit_code);
+
+        if (exit_code) {
+                goto exit;
+        }
+
+        ASSERT(arr_equals(&empty_list, &empty_copy));
+
+        /* error cases */
+        ASSERT(arr_copy(array, NULL));
+        ASSERT(arr_copy(NULL, &copy));
+        ASSERT(arr_copy(NULL, NULL));
+
+exit:
+        arr_free(&copy);
+        arr_free(&empty_list);
+        arr_free(&empty_copy);
+        EXIT_TEST(7);
+}
+
 #define FAILSAFE() \
         if (FAILING) { \
                 goto exit; \
@@ -259,6 +297,7 @@ MODULE_TEST arr_test_main(void) {
         UNIT_REPORT("arr_get_index()", test_get_index(&array, strings));
         UNIT_REPORT("arr_slice()", test_slice());
         UNIT_REPORT("arr_equals()", test_equals(&array));
+        UNIT_REPORT("arr_copy()", test_copy(&array));
 
 exit:
         arr_free(&array);
