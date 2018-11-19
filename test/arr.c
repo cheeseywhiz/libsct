@@ -62,22 +62,22 @@ UNIT_TEST test_get_index(struct array *array, char **strings) {
         ASSERT(!arr_get_index(array, -5));
         ASSERT(!arr_get_index(NULL, 0));
 
-        struct array empty_list;
+        struct array empty_array;
 
-        if (arr_init(&empty_list)) {
+        if (arr_init(&empty_array)) {
                 goto exit;
         }
 
-        ASSERT(!arr_get_index(&empty_list, 0));
+        ASSERT(!arr_get_index(&empty_array, 0));
 
 exit:
-        arr_free(&empty_list);
+        arr_free(&empty_array);
         EXIT_TEST(12);
 }
 
 UNIT_TEST test_slice(void) {
         SCORE_INIT();
-        struct array numbers, empty_list, slice;
+        struct array numbers, empty_array, slice;
         int exit_code;
 
         if (arr_init(&numbers)) {
@@ -133,12 +133,12 @@ UNIT_TEST test_slice(void) {
                 arr_free(&slice);
         }
 
-        if (arr_init(&empty_list)) {
+        if (arr_init(&empty_array)) {
                 goto exit;
         }
 
         /* Another empty case */
-        ASSERT(!arr_slice(&empty_list, &slice, 2, 5, 1));
+        ASSERT(!arr_slice(&empty_array, &slice, 2, 5, 1));
         ASSERT(!slice.length);
         arr_free(&slice);
 
@@ -150,7 +150,7 @@ UNIT_TEST test_slice(void) {
 
 exit:
         arr_free_all(&numbers);
-        arr_free(&empty_list);
+        arr_free(&empty_array);
         arr_free(&slice);
         EXIT_TEST(
                 ARRAY_LENGTH(case_groups) * (1 + ARRAY_LENGTH(case_groups[0].cases))
@@ -161,7 +161,7 @@ exit:
 
 UNIT_TEST test_equals(struct array *array) {
         SCORE_INIT();
-        struct array array_copy, numbers, empty_list, mid_slice, mid_slice_copy, beginning_slice;
+        struct array array_copy, numbers, empty_array, mid_slice, mid_slice_copy, beginning_slice;
 
         if (arr_init(&array_copy)) {
                 goto exit;
@@ -194,15 +194,15 @@ UNIT_TEST test_equals(struct array *array) {
                 }
         }
 
-        if (arr_init(&empty_list)) {
+        if (arr_init(&empty_array)) {
                 goto exit;
         }
 
-        ASSERT(!arr_equals(&numbers, &empty_list));
-        ASSERT(!arr_equals(&empty_list, &numbers));
+        ASSERT(!arr_equals(&numbers, &empty_array));
+        ASSERT(!arr_equals(&empty_array, &numbers));
 
         ASSERT(arr_equals(array, array));  /* is equal to self */
-        ASSERT(arr_equals(&empty_list, &empty_list));
+        ASSERT(arr_equals(&empty_array, &empty_array));
 
         if (arr_slice(&numbers, &mid_slice, 50, 75, 1) ||
                         arr_slice(&numbers, &mid_slice_copy, 50, 75, 1)) {
@@ -230,7 +230,7 @@ UNIT_TEST test_equals(struct array *array) {
 exit:
         arr_free(&array_copy);
         arr_free_all(&numbers);
-        arr_free(&empty_list);
+        arr_free(&empty_array);
         arr_free(&mid_slice);
         arr_free(&mid_slice_copy);
         arr_free(&beginning_slice);
@@ -239,7 +239,7 @@ exit:
 
 UNIT_TEST test_copy(struct array *array) {
         SCORE_INIT();
-        struct array copy, empty_list, empty_copy;
+        struct array copy, empty_array, empty_copy;
         int exit_code = arr_copy(array, &copy);
         ASSERT(!exit_code);
 
@@ -250,18 +250,18 @@ UNIT_TEST test_copy(struct array *array) {
         ASSERT(arr_equals(array, &copy));
         arr_free(&copy);
 
-        if (arr_init(&empty_list)) {
+        if (arr_init(&empty_array)) {
                 goto exit;
         }
 
-        exit_code = arr_copy(&empty_list, &empty_copy);
+        exit_code = arr_copy(&empty_array, &empty_copy);
         ASSERT(!exit_code);
 
         if (exit_code) {
                 goto exit;
         }
 
-        ASSERT(arr_equals(&empty_list, &empty_copy));
+        ASSERT(arr_equals(&empty_array, &empty_copy));
 
         /* error cases */
         ASSERT(arr_copy(array, NULL));
@@ -270,7 +270,7 @@ UNIT_TEST test_copy(struct array *array) {
 
 exit:
         arr_free(&copy);
-        arr_free(&empty_list);
+        arr_free(&empty_array);
         arr_free(&empty_copy);
         EXIT_TEST(7);
 }
@@ -297,22 +297,53 @@ UNIT_TEST test_find(struct array *array, char **strings, size_t n_strings) {
         ASSERT(arr_find(array, "random string") < 0);
         ASSERT(arr_find(array, NULL) < 0);
 
-        struct array empty_list;
+        struct array empty_array;
 
-        if (arr_init(&empty_list)) {
+        if (arr_init(&empty_array)) {
                 goto exit;
         }
 
-        ASSERT(arr_find(&empty_list, "they'll upvote") < 0);
-        ASSERT(arr_find(&empty_list, NULL) < 0);
+        ASSERT(arr_find(&empty_array, "they'll upvote") < 0);
+        ASSERT(arr_find(&empty_array, NULL) < 0);
 
         /* error cases */
         ASSERT(arr_find(NULL, "literally anything") < 0);
         ASSERT(arr_find(NULL, NULL) < 0);
 
 exit:
-        arr_free(&empty_list);
+        arr_free(&empty_array);
         EXIT_TEST((2 * n_strings) + 6);
+}
+
+#define POP_CASE(arr_i, string_i) \
+        observed = arr_pop(array, (arr_i)); \
+        expected = strings[(string_i)]; \
+        if (observed) { \
+                ASSERT(observed == expected); \
+        }
+
+UNIT_TEST test_pop(struct array *array, char **strings) {
+        SCORE_INIT();
+        char *observed, *expected;
+        POP_CASE(-2, 2);
+        POP_CASE(0, 0);
+        POP_CASE(1, 3);
+        POP_CASE(0, 1);
+        ASSERT(!array->length);
+
+        /* error cases */
+        struct array empty_array;
+
+        if (arr_init(&empty_array)) {
+                goto exit;
+        }
+
+        ASSERT(!arr_pop(&empty_array, 0));
+        ASSERT(!arr_pop(array, 5));
+
+exit:
+        arr_free(&empty_array);
+        EXIT_TEST(7);
 }
 
 #define FAILSAFE() \
@@ -339,6 +370,7 @@ MODULE_TEST arr_test_main(void) {
         UNIT_REPORT("arr_equals()", test_equals(&array));
         UNIT_REPORT("arr_copy()", test_copy(&array));
         UNIT_REPORT("arr_find()", test_find(&array, strings, n_strings));
+        UNIT_REPORT("arr_pop()", test_pop(&array, strings));
 
 exit:
         arr_free(&array);

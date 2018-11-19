@@ -45,4 +45,8 @@ int arr_copy(struct array *self, struct array *copy);
 ssize_t arr_find(struct array *self, void *item);
 /* Return the index of the first occurance of ptr in the array, or -1 if ptr is not in the array. */
 
+void* arr_pop(struct array *self, ssize_t index);
+/* Remove the node at index of the array and return the node's ptr. The node will be freed. Will
+   print an exception and return NULL if array is empty or if index is out of range. */
+
 #endif

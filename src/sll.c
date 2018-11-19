@@ -215,7 +215,7 @@ void* sll_pop(struct sll_node **self, ssize_t index) {
         CHECK_INDEX();
         struct sll_node *item = NULL;
 
-        if (index == 0) {
+        if (!index) {
                 item = *self;
                 *self = item->next;
         } else {

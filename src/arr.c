@@ -78,19 +78,19 @@ exit:
         return exit_code;
 }
 
+#define CHECK_INDEX() \
+        if (index < 0) { \
+                index += self->length; \
+        } \
+        if (!(0 <= index && index < self->length)) { \
+                EXCEPTION("user: index out of range"); \
+                goto exit; \
+        }
+
 void* arr_get_index(struct array *self, ssize_t index) {
         void *item = NULL;
         NULL_GUARD();
-
-        if (index < 0) {
-                index += self->length;
-        }
-
-        if (!(0 <= index && index < self->length)) {
-                EXCEPTION("user: index out of range");
-                goto exit;
-        }
-
+        CHECK_INDEX();
         item = self->array[index];
 
 exit:
@@ -183,4 +183,20 @@ ssize_t arr_find(struct array *self, void *item) {
 
 exit:
         return index;
+}
+
+void* arr_pop(struct array *self, ssize_t index) {
+        void *item = NULL;
+        NULL_GUARD();
+        CHECK_INDEX();
+        item = self->array[index];
+
+        for (index++; 1 <= index && index < self->length; index++) {
+                self->array[index - 1] = self->array[index];
+        }
+
+        self->length--;
+
+exit:
+        return item;
 }
