@@ -75,6 +75,59 @@ exit:
         EXIT_TEST(12);
 }
 
+UNIT_TEST test_set_index(void) {
+        SCORE_INIT();
+        struct array numbers, empty_array;
+
+        if (arr_init(&numbers)) {
+                goto exit;
+        }
+
+        for (size_t i = 0; i < 100; i++) {
+                if (arr_append(&numbers, NULL)) {
+                        goto exit;
+                }
+        }
+
+        ssize_t cases[] = {66, -16, -41, 0, -61, 61, -78, 75, -9, -12, -56, -69, -15, -60, 20, 10};
+
+        for (size_t case_i = 0; case_i < ARRAY_LENGTH(cases); case_i++) {
+                ssize_t *item = malloc(sizeof(ssize_t));
+
+                if (!item) {
+                        goto case_end;
+                }
+
+                ssize_t case_ = cases[case_i];
+                *item = case_;
+                int exit_code = arr_set_index(&numbers, case_, item);
+                ASSERT(!exit_code);
+
+                if (exit_code) {
+                        goto case_end;
+                }
+
+                ssize_t *item_copy = arr_get_index(&numbers, case_);
+                ASSERT(item == item_copy);
+
+case_end:
+                free(item);
+        }
+
+        if (arr_init(&empty_array)) {
+                goto exit;
+        }
+
+        ASSERT(arr_set_index(&numbers, 101, NULL));
+        ASSERT(arr_set_index(&empty_array, 0, NULL));
+        ASSERT(arr_set_index(NULL, 0, NULL));
+
+exit:
+        arr_free(&numbers);
+        arr_free(&empty_array);
+        EXIT_TEST(2 * ARRAY_LENGTH(cases) + 3);
+}
+
 UNIT_TEST test_slice(void) {
         SCORE_INIT();
         struct array numbers, empty_array, slice;
@@ -366,6 +419,7 @@ MODULE_TEST arr_test_main(void) {
         UNIT_REPORT("arr_append()", test_append(&array, strings, n_strings));
         FAILSAFE();
         UNIT_REPORT("arr_get_index()", test_get_index(&array, strings));
+        UNIT_REPORT("arr_set_index()", test_set_index());
         UNIT_REPORT("arr_slice()", test_slice());
         UNIT_REPORT("arr_equals()", test_equals(&array));
         UNIT_REPORT("arr_copy()", test_copy(&array));

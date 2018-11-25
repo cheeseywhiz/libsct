@@ -30,6 +30,11 @@ struct sll_node* sll_get_index(struct sll_node **self, ssize_t index);
 /* Return the index-th node in the list. Supports negative indexing. Will print an exception and
    return NULL if the list is empty or the desired index is out of range. */
 
+int sll_set_index(struct sll_node **self, ssize_t index, void *ptr);
+/* Set the ptr of the index-th node in the list. Returns zero if successful or nonzero otherwise.
+   sll_set_index will not free any existing ptr. The alternative is to get the node from
+   sll_get_index, free the existing ptr, then manually set the node's ptr. */
+
 struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, ssize_t step);
 /* Return pointer to the first node in a new list constructed from indexes from start to end with
    step inbetween. Will print an exception and return NULL if step is 0. The returned list should be

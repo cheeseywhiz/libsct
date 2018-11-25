@@ -91,6 +91,53 @@ exit:
         EXIT_TEST(22);
 }
 
+UNIT_TEST test_set_index(void) {
+        SCORE_INIT();
+        struct sll_node *numbers = NULL;
+
+        for (size_t i = 0; i < 100; i++) {
+                CHECK_NODE(sll_append(&numbers, NULL));
+        }
+
+        ssize_t cases[] = {66, -16, -41, 0, -61, 61, -78, 75, -9, -12, -56, -69, -15, -60, 20, 10};
+
+        for (size_t case_i = 0; case_i < ARRAY_LENGTH(cases); case_i++) {
+                ssize_t *item = malloc(sizeof(ssize_t));
+
+                if (!item) {
+                        goto case_end;
+                }
+
+                ssize_t case_ = cases[case_i];
+                *item = case_;
+                int exit_code = sll_set_index(&numbers, case_, item);
+                ASSERT(!exit_code);
+
+                if (exit_code) {
+                        goto case_end;
+                }
+
+                struct sll_node *node = sll_get_index(&numbers, case_);
+
+                if (!node) {
+                        goto case_end;
+                }
+
+                ASSERT(node->ptr == item);
+
+case_end:
+                free(item);
+        }
+
+        struct sll_node *empty_list = NULL;
+        ASSERT(sll_set_index(&numbers, 101, NULL));
+        ASSERT(sll_set_index(&empty_list, 0, NULL));
+
+exit:
+        sll_shallow_free(&numbers);
+        EXIT_TEST(2 * ARRAY_LENGTH(cases) + 2);
+}
+
 UNIT_TEST test_slice(void) {
         SCORE_INIT();
         struct sll_node *numbers = NULL;
@@ -287,6 +334,7 @@ MODULE_TEST sll_test_main(void) {
         CHECK_NODE(list);
         UNIT_REPORT("sll_length()", test_length(&list));
         UNIT_REPORT("sll_get_index()", test_get_index(&list));
+        UNIT_REPORT("sll_set_index()", test_set_index());
         UNIT_REPORT("sll_slice()", test_slice());
         UNIT_REPORT("sll_equals()", test_equals(list, strings, n_strings));
         UNIT_REPORT("sll_copy()", test_copy(list));

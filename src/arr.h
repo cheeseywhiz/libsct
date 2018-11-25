@@ -30,6 +30,11 @@ void* arr_get_index(struct array *self, ssize_t index);
 /* Return the index-th item in the array. Supports negative indexing. Will print an exception and
    return NULL if the list is empty or the desired index is out of range. */
 
+int arr_set_index(struct array *self, ssize_t index, void *ptr);
+/* Set the value of the index-th ptr in the array. Returns zero if successful or nonzero otherwise.
+   arr_set_index will not free any existing ptr. The alternative is to get the node from
+   arr_get_index, free the existing ptr, then call arr_set_index. */
+
 int arr_slice(struct array *self, struct array *slice, ssize_t start, ssize_t end, ssize_t step);
 /* Initialize a new array on slice that is composed of items from the array from start to end with
    step in between. Will print an exception and return NULL if step is 0. slice should be passed to

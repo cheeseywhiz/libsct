@@ -37,25 +37,24 @@ exit:
 }
 
 void arr_free(struct array *self) {
-        NULL_GUARD();
+        if (!self) {
+                return;
+        }
+
         free(self->array);
         self->array = NULL;  /* Prevent double frees */
-
-exit:
-        return;
 }
 
 void arr_deep_free(struct array *self, sct_free_func free_item) {
-        NULL_GUARD();
+        if (!self) {
+                return;
+        }
 
         for (ssize_t index = 0; index < self->length; index++) {
                 free_item(self->array[index]);
         }
 
         arr_free(self);
-
-exit:
-        return;
 }
 
 void arr_free_all(struct array *self) {
@@ -88,13 +87,24 @@ exit:
         }
 
 void* arr_get_index(struct array *self, ssize_t index) {
-        void *item = NULL;
+        void *ptr = NULL;
         NULL_GUARD();
         CHECK_INDEX();
-        item = self->array[index];
+        ptr = self->array[index];
 
 exit:
-        return item;
+        return ptr;
+}
+
+int arr_set_index(struct array *self, ssize_t index, void *ptr) {
+        int exit_code = 1;
+        NULL_GUARD();
+        CHECK_INDEX();
+        self->array[index] = ptr;
+        exit_code = 0;
+
+exit:
+        return exit_code;
 }
 
 int arr_slice(struct array *self, struct array *slice, ssize_t start, ssize_t end, ssize_t step) {

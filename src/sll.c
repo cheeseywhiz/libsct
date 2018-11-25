@@ -103,6 +103,17 @@ struct sll_node* sll_get_index(struct sll_node **self, ssize_t index) {
         return item;
 }
 
+int sll_set_index(struct sll_node **self, ssize_t index, void *ptr) {
+        struct sll_node *item = sll_get_index(self, index);
+
+        if (!item) {
+                return 1;
+        }
+
+        item->ptr = ptr;
+        return 0;
+}
+
 static void** sll_to_array(struct sll_node **self) {
         if (!*self) {
                 return NULL;
