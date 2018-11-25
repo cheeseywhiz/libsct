@@ -1,12 +1,13 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include "sct.h"
 #include "hash.h"
 
-uint64_t fnv_hash(unsigned char *data, size_t length) {
+sct_hash_int fnv_hash(unsigned char *data, size_t length) {
         /* https://tools.ietf.org/html/draft-eastlake-fnv-15 */
-        uint64_t hash = 0xcbf29ce484222325;
-        uint64_t prime = 0x100000001b3;
+        sct_hash_int hash = 0xcbf29ce484222325;
+        sct_hash_int prime = 0x100000001b3;
 
         for (size_t i = 0; i < length; i++) {
                 unsigned char byte = data[i];

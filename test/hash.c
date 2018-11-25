@@ -2,17 +2,18 @@
 #include <stdint.h>
 #include <string.h>
 #include "sct_internal.h"
+#include "sct.h"
 #include "test.h"
 #include "hash.h"
 
 struct string_case {
         char *string;
-        uint64_t expected_hash;
+        sct_hash_int expected_hash;
 };
 
 struct int_case {
         int number;
-        uint64_t expected_hash;
+        sct_hash_int expected_hash;
 };
 
 UNIT_TEST test_fnv_hash(void) {
@@ -44,7 +45,7 @@ UNIT_TEST test_fnv_hash(void) {
 
         for (size_t string_i = 0; string_i < ARRAY_LENGTH(string_cases); string_i++) {
                 struct string_case case_ = string_cases[string_i];
-                uint64_t observed_hash = fnv_hash(
+                sct_hash_int observed_hash = fnv_hash(
                         (unsigned char*) case_.string,
                         strlen(case_.string)
                 );
@@ -53,7 +54,7 @@ UNIT_TEST test_fnv_hash(void) {
 
         for (size_t int_i = 0; int_i < ARRAY_LENGTH(int_cases); int_i++) {
                 struct int_case case_ = int_cases[int_i];
-                uint64_t observed_hash = fnv_hash(
+                sct_hash_int observed_hash = fnv_hash(
                         (unsigned char*) (&case_.number),
                         sizeof(case_.number)
                 );
