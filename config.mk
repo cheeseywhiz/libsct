@@ -7,8 +7,8 @@ DIRS:=$(BLD) $(OBJ) $(TEST_OBJ)
 
 SCT_VERSION:=0.0.0
 
-OBJECTS:=exception sll arr slice
-TEST_OBJS:=sll arr
+OBJECTS:=exception sll arr slice hash
+TEST_OBJS:=sll arr hash
 SRC_HDR:=$(OBJECTS) sct_internal sct
 TEST_HDR:=test
 
