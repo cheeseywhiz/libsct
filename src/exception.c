@@ -12,6 +12,7 @@ void print_backtrace(void) {
 
         /* Some entries on the ends are redundant */
         for (size_t i = actual_size - 3; i >= 1; i--) {
+        // for (size_t i = 0; i < actual_size; i++) {
                 STDERR("%s\n", strings[i]);
         }
 

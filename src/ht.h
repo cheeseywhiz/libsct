@@ -14,6 +14,7 @@ struct ht_key_type {
 
 extern struct ht_key_type ht_string_type;
 extern struct ht_key_type ht_int_type;
+extern struct ht_key_type ht_uint64_type;
 
 struct ht_entry {
         sct_hash_int hash;
@@ -31,14 +32,15 @@ struct ht_hash_table {
 
 int ht_init(struct ht_hash_table *self, struct ht_key_type key_type);
 /* Initialize a new hash table. Returns zero if successful or nonzero otherwise, in which the hash
-   table should be abandoned. */
+   table should be abandoned. self->garbage holds all entries created by the hash table so that its
+   keys and values may be freed. self should be passed to ht_free later. */
 
 void ht_free(struct ht_hash_table *self);
 /* Free the data associated with the hash table. */
 
 int ht_entries(struct ht_hash_table *self, struct array *entries);
 /* Initialize an array of all entries in the table. Retains entry order. Returns zero if successful
-   or nonzero otherwise. */
+   or nonzero otherwise. entries should be passed to arr_free later. */
 
 ssize_t ht_length(struct ht_hash_table *self);
 /* Return the length of the key. Returns negative if not successful. */
@@ -51,7 +53,12 @@ int ht_delete_item(struct ht_hash_table *self, void *key);
 /* Delete the key from the table. Returns zero if successful or nonzero otherwise, in which the hash
    table should be abandoned. */
 
+void* ht_get(struct ht_hash_table *self, void *key, void *default_);
+/* Return the value of key if key is in the hash table, NULL if an error occurs, or default_
+   otherwise. */
+
 void* ht_get_item(struct ht_hash_table *self, void *key);
-/* Return the value of the key in the hash table. */
+/* Return the value of the key in the hash table. Will print an exception and return NULL if key is
+   not in the table. */
 
 #endif

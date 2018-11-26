@@ -1,9 +1,12 @@
 #include <string.h>
+#include <stdint.h>
 #include "exception.h"
 #include "hash.h"
 #include "arr.h"
 #include "ht.h"
 #include "sll.h"
+
+#define EXC_KEY_ERROR() EXCEPTION("user: hash table is NULL")
 
 static int init_buckets(struct ht_hash_table *self);
 
@@ -33,9 +36,22 @@ struct ht_key_type ht_int_type = {
         .key_equals = (ht_key_equals) ht_int_equals,
 };
 
+sct_hash_int ht_uint64_hash(uint64_t *key) {
+        return fnv_hash((unsigned char*) key, sizeof(key));
+}
+
+int ht_uint64_equals(uint64_t *key, uint64_t *other) {
+        return *key == *other;
+}
+
+struct ht_key_type ht_uint64_type = {
+        .hash_key = (ht_hash_key) ht_uint64_hash,
+        .key_equals = (ht_key_equals) ht_uint64_equals,
+};
+
 #define NULL_GUARD() \
         if (!self) { \
-                EXCEPTION("user: hash table is NULL"); \
+                EXC_KEY_ERROR(); \
                 goto exit; \
         }
 
@@ -43,7 +59,7 @@ int ht_init(struct ht_hash_table *self, struct ht_key_type key_type) {
         int exit_code = 1;
         NULL_GUARD();
         self->key_type = key_type;
-        self->size = 0;
+        self->size = 2;
 
         if (arr_init(&self->entries)) {
                 goto exit;
@@ -53,6 +69,7 @@ int ht_init(struct ht_hash_table *self, struct ht_key_type key_type) {
                 goto exit;
         }
 
+        self->buckets = (struct array) {0};
         exit_code = init_buckets(self);
 
 exit:
@@ -68,7 +85,7 @@ static void free_buckets(struct ht_hash_table *self) {
 }
 
 static void free_entries(struct ht_hash_table *self) {
-        arr_free_all(&self->entries);
+        arr_free(&self->entries);
 }
 
 static int init_buckets(struct ht_hash_table *self) {
@@ -283,11 +300,12 @@ int ht_set_item(struct ht_hash_table *self, void *key, void *value) {
         new_entry->key = key;
         new_entry->value = value;
 
-        if (entry_i >= 0) {
-                struct ht_entry *old_entry = arr_get_index(&self->entries, entry_i);
+        if (arr_append(&self->garbage, new_entry)) {
+                goto exit;
+        }
 
-                if (arr_append(&self->garbage, old_entry) \
-                                || arr_set_index(&self->entries, entry_i, new_entry)) {
+        if (entry_i >= 0) {
+                if (arr_set_index(&self->entries, entry_i, new_entry)) {
                         goto exit;
                 }
 
@@ -295,10 +313,17 @@ int ht_set_item(struct ht_hash_table *self, void *key, void *value) {
                 goto exit;
         }
 
+        entry_i_ptr = malloc(sizeof(ssize_t));
+
+        if (!entry_i_ptr) {
+                goto exit;
+        }
+
         entry_i = self->entries.length;
+        *entry_i_ptr = entry_i;
 
         if (arr_append(&self->entries, new_entry) \
-                        || sll_append(&collisions, entry_i_ptr) \
+                        || !sll_append(&collisions, entry_i_ptr) \
                         || arr_set_index(&self->buckets, bucket, collisions)) {
                 goto exit;
         }
@@ -322,10 +347,7 @@ int ht_delete_item(struct ht_hash_table *self, void *key) {
                 goto exit;
         }
 
-        struct sll_node *old_entry = arr_get_index(&self->entries, entry_i);
-
-        if (arr_append(&self->garbage, old_entry) \
-                        || arr_set_index(&self->entries, entry_i, NULL)) {
+        if (arr_set_index(&self->entries, entry_i, NULL)) {
                 goto exit;
         }
 
@@ -347,11 +369,11 @@ exit:
         return exit_code;
 }
 
-void* ht_get_item(struct ht_hash_table *self, void *key) {
-        void *value = NULL;
+static void* get(struct ht_hash_table *self, void *key, void *default_, int strict) {
+        void *value = default_;
         NULL_GUARD();
         ssize_t entry_i;
-        method_init(self, key, NULL, NULL, NULL, NULL, &entry_i, 1);
+        method_init(self, key, NULL, NULL, NULL, NULL, &entry_i, strict);
 
         if (entry_i < 0) {
                 goto exit;
@@ -360,6 +382,7 @@ void* ht_get_item(struct ht_hash_table *self, void *key) {
         struct ht_entry *entry = arr_get_index(&self->entries, entry_i);
 
         if (!entry) {
+                value = NULL;
                 goto exit;
         }
 
@@ -367,4 +390,12 @@ void* ht_get_item(struct ht_hash_table *self, void *key) {
 
 exit:
         return value;
+}
+
+void* ht_get(struct ht_hash_table *self, void *key, void *default_) {
+        return get(self, key, default_, 0);
+}
+
+void* ht_get_item(struct ht_hash_table *self, void *key) {
+        return get(self, key, NULL, 1);
 }

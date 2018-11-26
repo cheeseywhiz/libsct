@@ -19,7 +19,7 @@ void print_backtrace(void);
         STDERR("exception: "); \
         FILE_LINE(); \
         STDERR(args); \
-        STDERR("\n")
+        STDERR("\n\n")
 
 #endif  /* ifdef _SCT_SUPRESS_EXCEPTIONS */
 
