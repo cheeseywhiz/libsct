@@ -22,7 +22,7 @@ def fnv_hash(byte_seq):
 @dataclasses.dataclass(init=False)
 class StringCase(CStruct):
     string: str
-    expected_hash: hex
+    expected_hash: 'hex'
 
     def __init__(self, string, expected_hash=None):
         if expected_hash is None:
@@ -35,7 +35,7 @@ class StringCase(CStruct):
 @dataclasses.dataclass(init=False)
 class IntCase(CStruct):
     number: int
-    expected_hash: hex
+    expected_hash: 'hex'
 
     def __init__(self, number, expected_hash=None):
         if expected_hash is None:

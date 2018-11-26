@@ -1,6 +1,7 @@
 """Generic code generator for tests"""
 import collections
 import dataclasses
+import functools
 
 
 class MutableSequence(collections.abc.MutableSequence):
@@ -40,27 +41,33 @@ class CArray(MutableSequence):
         return f'struct {self.name} {self.name}s[] = {{\n{tab}{inside},\n}};'
 
 
-def c_repr(obj, type_):
-    if isinstance(obj, str):
-        return ''.join(['"', repr(obj)[1:-1], '"'])
+@functools.singledispatch
+def c_repr(obj, type_=None):
+    return repr(obj)
 
-    if isinstance(obj, int):
-        if isinstance(type_, str):
-            suffix_parts = []
 
-            if 'unsigned' in type_:
-                suffix_parts.append('U')
+@c_repr.register
+def _(obj: str, type_=None):
+    return ''.join(['"', repr(obj)[1:-1], '"'])
 
-            for i in range(type_.count('long')):
-                suffix_parts.append('L')
 
-            suffix = ''.join(suffix_parts)
-            return f'{obj!r}{suffix}'
+@c_repr.register
+def _(obj: int, type_=None):
+    if isinstance(type_, str):
+        parts = []
 
-        if type_ == hex:
-            return hex(obj)
+        if 'hex' in type_:
+            parts.append(hex(obj))
+        else:
+            parts.append(repr(obj))
 
-        return repr(obj)
+        if 'unsigned' in type_:
+            parts.append('U')
+
+        for i in range(type_.count('long')):
+            parts.append('L')
+
+        return ''.join(parts)
 
     return repr(obj)
 
