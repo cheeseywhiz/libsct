@@ -325,6 +325,7 @@ int ht_set_item(struct ht_hash_table *self, void *key, void *value) {
         if (arr_append(&self->entries, new_entry) \
                         || !sll_append(&collisions, entry_i_ptr) \
                         || arr_set_index(&self->buckets, bucket, collisions)) {
+                free(entry_i_ptr);
                 goto exit;
         }
 
