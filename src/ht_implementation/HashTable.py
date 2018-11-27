@@ -9,7 +9,6 @@ import numpy as np
 ArrayT = typing.List
 LinkedListT = typing.List
 VoidPtr = typing.Any
-size_t = int
 ssize_t = int
 uint64_t = int
 
@@ -55,9 +54,9 @@ EntriesT = ArrayT[Entry]
 @dataclasses.dataclass(init=False)
 class HashTable(collections.abc.MutableMapping):
     key_type: KeyType
-    table_size: size_t
-    buckets: BucketsT
+    table_size: ssize_t
     _entries: EntriesT
+    buckets: BucketsT
 
     def __init__(self, key_type: KeyType, *args, **kwargs):
         super().__init__()
@@ -78,8 +77,12 @@ class HashTable(collections.abc.MutableMapping):
     def _init_buckets(self) -> None:
         self.buckets = [[] for _ in range(self.table_size)]
         # trim deleted/None entries here?
+        # Yes: O(N) len(self) called in self._exceeds_load_factor_limit() can
+        # be approximated with O(1) len(self._entries) becasue self._entries is
+        # an array. We can call O(N) self.entries() here because rebucketing is
+        # O(N) anyways.
         self._entries = self.entries()
-        mask = self.table_size - 1
+        mask: ssize_t = self.table_size - 1
 
         for entry_i, entry in enumerate(self._entries):
             if entry is None:
@@ -99,9 +102,9 @@ class HashTable(collections.abc.MutableMapping):
                 return False
 
             future_table_size = self.table_size >> 1
-            return len(self) * 3 < future_table_size * 2
+            return len(self._entries) * 3 < future_table_size * 2
 
-        return len(self) * 3 > self.table_size * 2
+        return len(self._entries) * 3 > self.table_size * 2
 
     def _resize(self, grow: bool) -> None:
         if self._exceeds_load_factor_limit(grow):
@@ -111,13 +114,13 @@ class HashTable(collections.abc.MutableMapping):
             self, key: KeyT, key_hash: HashT, collisions: CollisionsT,
             strict: bool,
     ) -> EntryIndexT:
-        for collision_i, entry_i in enumerate(collisions):
+        for entry_i in collisions:
             entry = self._entries[entry_i]
 
             if entry is None:
                 continue
 
-            if key is key_hash \
+            if key is entry.key \
                     or key_hash == entry.key_hash \
                     or self.key_type.key_equals(key, entry.key):
                 return entry_i
@@ -131,7 +134,7 @@ class HashTable(collections.abc.MutableMapping):
             self, key: KeyT, strict: bool,
     ) -> typing.Tuple[HashT, CollisionsT, EntryIndexT]:
         key_hash = self.key_type.hash_key(key)
-        mask = self.table_size - 1
+        mask: ssize_t = self.table_size - 1
         bucket = key_hash & mask
         collisions = self.buckets[bucket]
         entry_i = self._resolve_collisions(key, key_hash, collisions, strict)
@@ -139,12 +142,12 @@ class HashTable(collections.abc.MutableMapping):
 
     def __setitem__(self, key: KeyT, value: VoidPtr) -> None:
         key_hash, collisions, entry_i = self._method_init(key, False)
+        new_entry = Entry(key_hash, key, value)
 
         if entry_i >= 0:
-            self._entries[entry_i].value = value
+            self._entries[entry_i] = new_entry
             return
 
-        new_entry = Entry(key_hash, key, value)
         entry_i = len(self._entries)
         self._entries.append(new_entry)
         collisions.append(entry_i)

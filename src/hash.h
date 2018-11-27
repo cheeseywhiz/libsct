@@ -2,9 +2,9 @@
 #define HASH_H
 
 #include <stddef.h>
-#include <stdint.h>
+#include "sct.h"
 
-uint64_t fnv_hash(unsigned char *data, size_t length);
+sct_hash_int fnv_hash(unsigned char *data, size_t length);
 /* Return the Fowler–Noll–Vo hash of the data. */
 
 #endif

@@ -1,2 +1,4 @@
 build
 vgcore.*
+test/__pycache__
+tmp.c

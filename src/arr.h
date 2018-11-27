@@ -2,6 +2,7 @@
 #define ARR_H
 
 #include <stddef.h>
+#include <stdlib.h>
 #include "sct.h"
 
 struct array {
