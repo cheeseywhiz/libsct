@@ -71,6 +71,10 @@ void* ht_get_item(struct ht_hash_table *self, void *key);
 void* ht_pop(struct ht_hash_table *self, void *key, void *default_);
 /* Return key and remove key from the hash table if key is in the hash table, or return default_. */
 
+struct ht_entry* ht_popitem(struct ht_hash_table *self);
+/* Pop the last item in the hash table and return its ht_entry structure, or NULL if the table is
+   empty. */
+
 int ht_contains(struct ht_hash_table *self, void *key);
 /* Return if key is in the hash table. */
 

@@ -65,11 +65,7 @@ int ht_init(struct ht_hash_table *self, struct ht_key_type key_type) {
         self->key_type = key_type;
         self->size = 2;
 
-        if (arr_init(&self->entries)) {
-                goto exit;
-        }
-
-        if (arr_init(&self->garbage)) {
+        if (arr_init(&self->entries) || arr_init(&self->garbage)) {
                 goto exit;
         }
 
@@ -133,11 +129,8 @@ static int init_buckets(struct ht_hash_table *self) {
 
                 *entry_i_ptr = entry_i;
 
-                if (!sll_append(&collisions, entry_i_ptr)) {
-                        goto exit;
-                }
-
-                if (arr_set_index(&self->buckets, bucket, collisions)) {
+                if (!sll_append(&collisions, entry_i_ptr) \
+                                || arr_set_index(&self->buckets, bucket, collisions)) {
                         goto exit;
                 }
         }
@@ -373,11 +366,7 @@ int ht_delete_item(struct ht_hash_table *self, void *key) {
         ssize_t entry_i;
         method_init(self, key, NULL, &bucket, &collisions, &entry_i_ptr, &entry_i, 1);
 
-        if (entry_i < 0) {
-                goto exit;
-        }
-
-        if (arr_set_index(&self->entries, entry_i, NULL)) {
+        if (entry_i < 0 || arr_set_index(&self->entries, entry_i, NULL)) {
                 goto exit;
         }
 
@@ -451,6 +440,33 @@ void* ht_pop(struct ht_hash_table *self, void *key, void *default_) {
 
 exit:
         return value;
+}
+
+struct ht_entry* ht_popitem(struct ht_hash_table *self) {
+        struct ht_entry *entry = NULL;
+        NULL_GUARD();
+
+        for (ssize_t entry_i = self->entries.length - 1; entry_i >= 0; entry_i--) {
+                entry = arr_get_index(&self->entries, entry_i);
+
+                if (entry) {
+                        break;
+                } else {
+                        continue;
+                }
+        }
+
+        if (!entry) {
+                goto exit;
+        }
+
+        if (ht_delete_item(self, entry->key)) {
+                entry = NULL;
+                goto exit;
+        }
+
+exit:
+        return entry;
 }
 
 int ht_contains(struct ht_hash_table *self, void *key) {

@@ -29,6 +29,11 @@ class KVPArray(CArray):
     def keys(self, type_, name, ptr=0):
         return CArray(type_, name, [pair.key for pair in self], ptr=ptr)
 
+    def reversed(self, name):
+        """Reversed array not in place"""
+        cls = type(self)
+        return cls(name, reversed(self))
+
 
 def random_string(k=8):
     return ''.join(random.sample(ALPHABET, k=k))
@@ -119,6 +124,9 @@ def main():
 
     comment('test_length')
     print(StringArray('random_keys', (random_string() for _ in range(8))))
+
+    comment('test_popitem')
+    print(key_value_pairs.reversed('popitem_cases'))
 
 
 if __name__ == '__main__':

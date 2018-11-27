@@ -263,6 +263,57 @@ exit:
         EXIT_TEST(ARRAY_LENGTH(random_keys) + 2);
 }
 
+UNIT_TEST test_popitem(void) {
+        SCORE_INIT();
+        struct ht_hash_table table;
+
+        if (init_test_table(&table)) {
+                goto exit;
+        }
+
+        struct key_value_pair popitem_cases[] = {
+                {"__bool__", "boolin"},
+                {"__hash__", "self explanatory"},
+                {"__gt__", "greater than"},
+                {"__lt__", "less than"},
+                {"__str__", "string"},
+                {"__repr__", "representation"},
+                {"__init__", "initializer"},
+                {"__exit__", "context manager exit"},
+                {"__enter__", "context manager enter"},
+                {"__del__", "destructor"},
+                {"__new__", "constructor"},
+                {"__getitem__", "self explanatory"},
+                {"__eq__", "equals"},
+                {"__doc__", "docstring"},
+                {"", "blank"},
+                {"123", "numbers"},
+                {"goodbye", "earth"},
+                {"hello", "world"},
+        };
+
+        for (size_t case_i = 0; case_i < ARRAY_LENGTH(popitem_cases); case_i++) {
+                struct key_value_pair case_ = popitem_cases[case_i];
+                struct ht_entry *entry = ht_popitem(&table);
+                ASSERT(entry);
+
+                if (!entry) {
+                        continue;
+                }
+
+                ASSERT(case_.key == entry->key);
+                ASSERT(case_.value == entry->value);
+        }
+
+        ASSERT(!ht_popitem(&table));
+        ASSERT(!ht_length(&table));
+        ASSERT(!ht_popitem(NULL));
+
+exit:
+        ht_free(&table);
+        EXIT_TEST(3 * ARRAY_LENGTH(popitem_cases) + 3);
+}
+
 MODULE_TEST ht_test_main(void) {
         SCORE_INIT();
         UNIT_REPORT("ht_pop()", test_pop());
@@ -270,5 +321,6 @@ MODULE_TEST ht_test_main(void) {
         UNIT_REPORT("ht_get()", test_get());
         UNIT_REPORT("ht_set_item()/ht_get_item()", test_set_get());
         UNIT_REPORT("ht_length()", test_length());
+        UNIT_REPORT("ht_popitem()", test_popitem());
         RETURN_SCORE();
 }
