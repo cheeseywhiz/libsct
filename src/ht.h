@@ -38,6 +38,13 @@ int ht_init(struct ht_hash_table *self, struct ht_key_type key_type);
 void ht_free(struct ht_hash_table *self);
 /* Free the data associated with the hash table. */
 
+void ht_generic_free(struct ht_hash_table *self, sct_free_func free_key, sct_free_func free_value);
+/* Call free_key on on all keys and free_value on all values in the table's garbage, then free the
+   data associated with the table. */
+
+void ht_free_all(struct ht_hash_table *self);
+/* Call ht_generic_free with free for both free_key and free_value. */
+
 int ht_entries(struct ht_hash_table *self, struct array *entries);
 /* Initialize an array of all entries in the table. Retains entry order. Returns zero if successful
    or nonzero otherwise. entries should be passed to arr_free later. */
@@ -60,5 +67,11 @@ void* ht_get(struct ht_hash_table *self, void *key, void *default_);
 void* ht_get_item(struct ht_hash_table *self, void *key);
 /* Return the value of the key in the hash table. Will print an exception and return NULL if key is
    not in the table. */
+
+void* ht_pop(struct ht_hash_table *self, void *key, void *default_);
+/* Return key and remove key from the hash table if key is in the hash table, or return default_. */
+
+int ht_contains(struct ht_hash_table *self, void *key);
+/* Return if key is in the hash table. */
 
 #endif

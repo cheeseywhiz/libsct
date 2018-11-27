@@ -6,8 +6,6 @@
 #include "ht.h"
 #include "sll.h"
 
-#define EXC_KEY_ERROR() EXCEPTION("user: hash table is NULL")
-
 static int init_buckets(struct ht_hash_table *self);
 
 sct_hash_int ht_string_hash(char *key) {
@@ -51,7 +49,13 @@ struct ht_key_type ht_uint64_type = {
 
 #define NULL_GUARD() \
         if (!self) { \
-                EXC_KEY_ERROR(); \
+                EXCEPTION("user: hash table is NULL"); \
+                goto exit; \
+        }
+
+#define KEY_GUARD() \
+        if (!key) { \
+                EXCEPTION("user: key is NULL"); \
                 goto exit; \
         }
 
@@ -152,6 +156,29 @@ void ht_free(struct ht_hash_table *self) {
         free_buckets(self);
         free_entries(self);
         arr_free_all(&self->garbage);
+}
+
+void ht_generic_free(struct ht_hash_table *self, sct_free_func free_key, sct_free_func free_value) {
+        if (!self) {
+                return;
+        }
+
+        for (ssize_t garbage_i = 0; garbage_i < self->garbage.length; garbage_i++) {
+                struct ht_entry *entry = arr_get_index(&self->garbage, garbage_i);
+
+                if (!entry) {
+                        continue;
+                }
+
+                free_key(entry->key);
+                free_value(entry->value);
+        }
+
+        ht_free(self);
+}
+
+void ht_free_all(struct ht_hash_table *self) {
+        ht_generic_free(self, free, free);
 }
 
 int ht_entries(struct ht_hash_table *self, struct array *entries) {
@@ -284,6 +311,7 @@ static void method_init(struct ht_hash_table *self, void *key, sct_hash_int *has
 int ht_set_item(struct ht_hash_table *self, void *key, void *value) {
         int exit_code = 1;
         NULL_GUARD();
+        KEY_GUARD();
         sct_hash_int hash;
         ssize_t bucket;
         struct sll_node *collisions;
@@ -338,6 +366,7 @@ exit:
 int ht_delete_item(struct ht_hash_table *self, void *key) {
         int exit_code = 1;
         NULL_GUARD();
+        KEY_GUARD();
         ssize_t bucket;
         struct sll_node *collisions;
         ssize_t *entry_i_ptr;
@@ -371,19 +400,20 @@ exit:
 }
 
 static void* get(struct ht_hash_table *self, void *key, void *default_, int strict) {
-        void *value = default_;
+        void *value = NULL;
         NULL_GUARD();
+        KEY_GUARD();
         ssize_t entry_i;
         method_init(self, key, NULL, NULL, NULL, NULL, &entry_i, strict);
 
         if (entry_i < 0) {
+                value = default_;
                 goto exit;
         }
 
         struct ht_entry *entry = arr_get_index(&self->entries, entry_i);
 
         if (!entry) {
-                value = NULL;
                 goto exit;
         }
 
@@ -399,4 +429,38 @@ void* ht_get(struct ht_hash_table *self, void *key, void *default_) {
 
 void* ht_get_item(struct ht_hash_table *self, void *key) {
         return get(self, key, NULL, 1);
+}
+
+void* ht_pop(struct ht_hash_table *self, void *key, void *default_) {
+        void *value = NULL;
+        NULL_GUARD();
+        KEY_GUARD();
+        char sentinel;
+        void *try_value = ht_get(self, key, &sentinel);
+
+        if (try_value == (void*) &sentinel) {
+                value = default_;
+                goto exit;
+        }
+
+        if (ht_delete_item(self, key)) {
+                goto exit;
+        }
+
+        value = try_value;
+
+exit:
+        return value;
+}
+
+int ht_contains(struct ht_hash_table *self, void *key) {
+        int contains = 0;
+        NULL_GUARD();
+        KEY_GUARD();
+        ssize_t entry_i;
+        method_init(self, key, NULL, NULL, NULL, NULL, &entry_i, 0);
+        contains = entry_i >= 0;
+
+exit:
+        return contains;
 }

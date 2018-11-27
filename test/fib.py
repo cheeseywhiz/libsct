@@ -1,6 +1,6 @@
 import dataclasses
 import functools
-from code_gen import CArray, CStruct
+from code_gen import CStructArray, CStruct
 
 
 @functools.lru_cache(None)
@@ -25,7 +25,7 @@ class FibCase(CStruct):
 
 
 def main():
-    print(CArray('fib_case', map(FibCase, range(93 + 1))))
+    print(CStructArray('fib_case', map(FibCase, range(93 + 1))))
 
 
 if __name__ == '__main__':

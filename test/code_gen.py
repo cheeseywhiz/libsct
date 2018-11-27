@@ -24,21 +24,42 @@ class MutableSequence(collections.abc.MutableSequence):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        self.__list = list(*args, **kwargs)
+        self.__list = []
+        super().extend(list(*args, **kwargs))
 
     def __repr__(self):
         return repr(self.__list)
 
 
+def tab_over(string, n_tabs=1, tab_width=8):
+    tab = ' ' * (tab_width * n_tabs)
+    return '\n'.join(
+        tab + line
+        for line in string.splitlines()
+    )
+
+
 class CArray(MutableSequence):
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, type_, name, *args, ptr=0, **kwargs):
         super().__init__(*args, **kwargs)
+        self.type_ = type_
         self.name = name
+        self.ptr = ptr
 
     def __str__(self):
-        tab = ' ' * 8
-        inside = (',\n' + tab).join(map(str, self))
-        return f'struct {self.name} {self.name}s[] = {{\n{tab}{inside},\n}};'
+        inside = tab_over(',\n'.join(map(c_repr, self)))
+        ptr = '*' * self.ptr
+        return tab_over(f'{self.type_} {ptr}{self.name}[] = '
+                        f'{{\n{inside},\n}};')
+
+
+class CStructArray(CArray):
+    def __init__(self, struct_name, *args, **kwargs):
+        if struct_name is not None:
+            type_ = f'struct {struct_name}'
+            name = f'{struct_name}s'
+
+        super().__init__(type_, name, *args, **kwargs)
 
 
 @functools.singledispatch
@@ -46,13 +67,25 @@ def c_repr(obj, type_=None):
     return repr(obj)
 
 
+def cr_cls(obj, type_=None):
+    return str(obj)
+
+
+def register_class(cls):
+    c_repr.register(cls, cr_cls)
+    return cls
+
+
+c_repr.register_class = register_class
+
+
 @c_repr.register
-def _(obj: str, type_=None):
+def cr_str(obj: str, type_=None):
     return ''.join(['"', repr(obj)[1:-1], '"'])
 
 
 @c_repr.register
-def _(obj: int, type_=None):
+def cr_int(obj: int, type_=None):
     if isinstance(type_, str):
         parts = []
 
@@ -72,6 +105,7 @@ def _(obj: int, type_=None):
     return repr(obj)
 
 
+@c_repr.register_class
 @dataclasses.dataclass
 class CStruct:
     def __str__(self):
@@ -80,3 +114,7 @@ class CStruct:
             for field in dataclasses.fields(self)
         )
         return f'{{{inside}}}'
+
+
+def comment(string):
+    print(f'/* {string} */')

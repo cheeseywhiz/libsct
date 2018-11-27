@@ -4,7 +4,7 @@ import dataclasses
 import struct
 import typing
 import numpy as np
-from code_gen import CArray, CStruct
+from code_gen import CStructArray, CStruct
 
 
 def fnv_hash(byte_seq):
@@ -46,7 +46,7 @@ class IntCase(CStruct):
 
 
 def main():
-    print(CArray(
+    print(CStructArray(
         'string_case', map(StringCase, [
             'Hello World',
             'hello world',
@@ -59,7 +59,7 @@ def main():
             'abcdefghijklmnopqrstuvwxyz',
         ])
     ))
-    print(CArray(
+    print(CStructArray(
         'int_case', map(IntCase, [
             0,
             1,

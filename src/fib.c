@@ -68,17 +68,7 @@ uint64_t fibonacci(uint64_t n) {
 }
 
 void fib_free_table(void) {
-        for (ssize_t garbage_i = 0; garbage_i < fib_table->garbage.length; garbage_i++) {
-                struct ht_entry *entry = arr_get_index(&fib_table->garbage, garbage_i);
-
-                if (!entry) {
-                        continue;
-                }
-
-                free(entry->key);
-                free(entry->value);
-        }
-
-        ht_free(fib_table);
+        ht_free_all(fib_table);
         free(fib_table);
+        fib_table = NULL;
 }
