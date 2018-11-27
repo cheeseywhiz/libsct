@@ -53,6 +53,11 @@ class CArray(MutableSequence):
                         f'{{\n{inside},\n}};')
 
 
+class StringArray(CArray):
+    def __init__(self, name, *args, **kwargs):
+        super().__init__('char', name, *args, ptr=1, **kwargs)
+
+
 class CStructArray(CArray):
     def __init__(self, struct_name, *args, **kwargs):
         if struct_name is not None:

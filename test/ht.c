@@ -223,11 +223,52 @@ exit:
         EXIT_TEST(4 * ARRAY_LENGTH(set_get_cases) + 7);
 }
 
+UNIT_TEST test_length(void) {
+        SCORE_INIT();
+        struct ht_hash_table table;
+
+        if (ht_init(&table, ht_string_type)) {
+                goto exit;
+        }
+
+        char *random_keys[] = {
+                "HCo9PbzR",
+                "KZuQOBdV",
+                "tin4d9e2",
+                "et68VkAK",
+                "qiaJ42cL",
+                "0n5KDk9X",
+                "TNGcymwg",
+                "nKR5BLmF",
+        };
+        ssize_t length = 0;
+        size_t key_i = 0;
+
+        for (size_t key_i = 0; key_i < ARRAY_LENGTH(random_keys); key_i++) {
+                char *key = random_keys[key_i];
+                ASSERT(ht_length(&table) == length);
+
+                if (ht_set_item(&table, key, NULL)) {
+                        goto exit;
+                }
+
+                length++;
+        }
+
+        ASSERT(ht_length(&table) == length);
+        ASSERT(ht_length(NULL) < 0);
+
+exit:
+        ht_free(&table);
+        EXIT_TEST(ARRAY_LENGTH(random_keys) + 2);
+}
+
 MODULE_TEST ht_test_main(void) {
         SCORE_INIT();
         UNIT_REPORT("ht_pop()", test_pop());
         UNIT_REPORT("ht_contains()", test_contains());
         UNIT_REPORT("ht_get()", test_get());
         UNIT_REPORT("ht_set_item()/ht_get_item()", test_set_get());
+        UNIT_REPORT("ht_length()", test_length());
         RETURN_SCORE();
 }

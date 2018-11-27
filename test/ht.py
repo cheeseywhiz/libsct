@@ -2,7 +2,8 @@ import dataclasses
 import itertools
 import string
 import random
-from code_gen import CArray, CStructArray, CStruct, comment, c_repr
+from code_gen import CArray, CStructArray, CStruct, comment, c_repr, \
+    StringArray
 
 ALPHABET = string.ascii_letters + string.digits
 
@@ -112,10 +113,12 @@ def main():
     print(get_cases)
 
     comment('test_set_get')
-    set_get_cases = CStructArray(
+    print(CStructArray(
         'set_get_case', map(SetGetCase.from_kvp, key_value_pairs)
-    )
-    print(set_get_cases)
+    ))
+
+    comment('test_length')
+    print(StringArray('random_keys', (random_string() for _ in range(8))))
 
 
 if __name__ == '__main__':
