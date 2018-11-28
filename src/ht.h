@@ -78,4 +78,7 @@ struct ht_entry* ht_popitem(struct ht_hash_table *self);
 int ht_contains(struct ht_hash_table *self, void *key);
 /* Return if key is in the hash table. */
 
+int ht_clear(struct ht_hash_table *self);
+/* Clear all entries in the hash table. Returns zero if successful or nonzero otherwise. */
+
 #endif

@@ -314,6 +314,23 @@ exit:
         EXIT_TEST(3 * ARRAY_LENGTH(popitem_cases) + 3);
 }
 
+UNIT_TEST test_clear(void) {
+        SCORE_INIT();
+        struct ht_hash_table table;
+
+        if (init_test_table(&table)) {
+                goto exit;
+        }
+
+        ASSERT(!ht_clear(&table));
+        ASSERT(!ht_length(&table));
+        ASSERT(ht_clear(NULL));
+
+exit:
+        ht_free(&table);
+        EXIT_TEST(3);
+}
+
 MODULE_TEST ht_test_main(void) {
         SCORE_INIT();
         UNIT_REPORT("ht_pop()", test_pop());
@@ -322,5 +339,6 @@ MODULE_TEST ht_test_main(void) {
         UNIT_REPORT("ht_set_item()/ht_get_item()", test_set_get());
         UNIT_REPORT("ht_length()", test_length());
         UNIT_REPORT("ht_popitem()", test_popitem());
+        UNIT_REPORT("ht_clear()", test_clear());
         RETURN_SCORE();
 }

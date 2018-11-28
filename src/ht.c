@@ -480,3 +480,20 @@ int ht_contains(struct ht_hash_table *self, void *key) {
 exit:
         return contains;
 }
+
+int ht_clear(struct ht_hash_table *self) {
+        int exit_code = 1;
+        NULL_GUARD();
+        struct array empty;
+
+        if (arr_init(&empty)) {
+                goto exit;
+        }
+
+        free_entries(self);
+        self->entries = empty;
+        exit_code = init_buckets(self);
+
+exit:
+        return exit_code;
+}
