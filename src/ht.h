@@ -8,8 +8,8 @@ typedef sct_hash_int (*ht_hash_key)(void *key);
 typedef int (*ht_key_equals)(void *key, void *other);
 
 struct ht_key_type {
-        ht_hash_key hash_key;
-        ht_key_equals key_equals;
+	ht_hash_key hash_key;
+	ht_key_equals key_equals;
 };
 
 extern struct ht_key_type ht_string_type;
@@ -17,17 +17,17 @@ extern struct ht_key_type ht_int_type;
 extern struct ht_key_type ht_uint64_type;
 
 struct ht_entry {
-        sct_hash_int hash;
-        void *key;
-        void *value;
+	sct_hash_int hash;
+	void *key;
+	void *value;
 };
 
 struct ht_hash_table {
-        struct ht_key_type key_type;
-        ssize_t size;
-        struct array entries;
-        struct array buckets;
-        struct array garbage;
+	struct ht_key_type key_type;
+	ssize_t size;
+	struct array entries;
+	struct array buckets;
+	struct array garbage;
 };
 
 int ht_init(struct ht_hash_table *self, struct ht_key_type key_type);

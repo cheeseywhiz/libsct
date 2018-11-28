@@ -6,9 +6,9 @@
 #include "sct.h"
 
 struct array {
-        void **array;
-        ssize_t length;
-        ssize_t size;
+	void **array;
+	ssize_t length;
+	ssize_t size;
 };
 
 int arr_init(struct array *self);

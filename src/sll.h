@@ -5,8 +5,8 @@
 #include "sct.h"
 
 struct sll_node {
-        struct sll_node *next;
-        void *ptr;
+	struct sll_node *next;
+	void *ptr;
 };
 
 struct sll_node* sll_append(struct sll_node **self, void *ptr);

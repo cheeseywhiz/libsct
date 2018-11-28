@@ -31,12 +31,15 @@ class MutableSequence(collections.abc.MutableSequence):
         return repr(self.__list)
 
 
-def tab_over(string, n_tabs=1, tab_width=8):
-    tab = ' ' * (tab_width * n_tabs)
-    return '\n'.join(
-        tab + line
-        for line in string.splitlines()
-    )
+def tab_over(string, n_tabs=1):
+    tab = '\t' * n_tabs
+    parts = []
+
+    for line in string.splitlines(True):
+        parts.append(tab)
+        parts.append(line)
+
+    return ''.join(parts)
 
 
 class CArray(MutableSequence):
