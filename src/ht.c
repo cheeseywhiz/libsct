@@ -63,7 +63,7 @@ int ht_init(struct ht_hash_table *self, struct ht_key_type key_type) {
 	int exit_code = 1;
 	NULL_GUARD();
 	self->key_type = key_type;
-	self->size = 2;
+	self->size = HT_MIN_SIZE;
 
 	if (arr_init(&self->entries) || arr_init(&self->garbage)) {
 		goto exit;
@@ -235,7 +235,7 @@ static int do_resize(struct ht_hash_table *self, int grow) {
 
 static int exceeds_load_factor_limit(struct ht_hash_table *self, int grow) {
 	if (!grow) {
-		if (self->size == 2) {
+		if (self->size == HT_MIN_SIZE) {
 			return 0;
 		}
 
@@ -492,6 +492,7 @@ int ht_clear(struct ht_hash_table *self) {
 
 	free_entries(self);
 	self->entries = empty;
+	self->size = HT_MIN_SIZE;
 	exit_code = init_buckets(self);
 
 exit:

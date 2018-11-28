@@ -22,6 +22,8 @@ struct ht_entry {
 	void *value;
 };
 
+#define HT_MIN_SIZE (1 << 1)
+
 struct ht_hash_table {
 	struct ht_key_type key_type;
 	ssize_t size;
