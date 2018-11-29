@@ -331,6 +331,57 @@ exit:
 	EXIT_TEST(3);
 }
 
+UNIT_TEST test_equals(void) {
+	SCORE_INIT();
+	ht_equals_func string_equals = ht_string_type.key_equals;
+	struct ht_hash_table table = {0}, table_copy = {0}, random_table = {0}, empty_table = {0};
+
+	if (init_test_table(&table) \
+			|| init_test_table(&table_copy) \
+			|| init_test_table(&random_table) \
+			|| ht_init(&empty_table, ht_string_type)) {
+		goto exit;
+	}
+
+	struct key_value_pair random_pairs[] = {
+		{"g8QysGFb", "uN3z5sbk"},
+		{"m2uZKYiv", "BnrRg1yJ"},
+		{"w641RIFX", "IpeUcfik"},
+		{"k6InrWvM", "G1qxv5hs"},
+	};
+
+	for (size_t i = 0; i < ARRAY_LENGTH(random_pairs); i++) {
+		if (!ht_popitem(&random_table)) {
+			goto exit;
+		}
+
+		struct key_value_pair pair = random_pairs[i];
+
+		if (ht_set_item(&random_table, pair.key, pair.value)) {
+			goto exit;
+		}
+	}
+
+	ASSERT(ht_equals(&table, &table, string_equals));
+	ASSERT(ht_equals(&table, &table_copy, string_equals));
+	ASSERT(ht_equals(&table_copy, &table, string_equals));
+	ASSERT(ht_equals(&empty_table, &empty_table, string_equals));
+	ASSERT(!ht_equals(&table, &random_table, string_equals));
+	ASSERT(!ht_equals(&random_table, &table, string_equals));
+	ASSERT(!ht_equals(&table, &empty_table, string_equals));
+	ASSERT(!ht_equals(&empty_table, &table, string_equals));
+	ASSERT(!ht_equals(&table, NULL, string_equals));
+	ASSERT(!ht_equals(NULL, &table, string_equals));
+	ASSERT(!ht_equals(NULL, NULL, string_equals));
+
+exit:
+	ht_free(&table);
+	ht_free(&table_copy);
+	ht_free(&random_table);
+	ht_free(&empty_table);
+	EXIT_TEST(11);
+}
+
 MODULE_TEST ht_test_main(void) {
 	SCORE_INIT();
 	UNIT_REPORT("ht_pop()", test_pop());
@@ -340,5 +391,6 @@ MODULE_TEST ht_test_main(void) {
 	UNIT_REPORT("ht_length()", test_length());
 	UNIT_REPORT("ht_popitem()", test_popitem());
 	UNIT_REPORT("ht_clear()", test_clear());
+	UNIT_REPORT("ht_equals()", test_equals());
 	RETURN_SCORE();
 }

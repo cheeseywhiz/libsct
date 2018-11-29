@@ -17,8 +17,8 @@ int ht_string_equals(char *key, char *other) {
 }
 
 struct ht_key_type ht_string_type = {
-	.hash_key = (ht_hash_key) ht_string_hash,
-	.key_equals = (ht_key_equals) ht_string_equals,
+	.hash_key = (ht_hash_func) ht_string_hash,
+	.key_equals = (ht_equals_func) ht_string_equals,
 };
 
 sct_hash_int ht_int_hash(int *key) {
@@ -30,8 +30,8 @@ int ht_int_equals(int *key, int *other) {
 }
 
 struct ht_key_type ht_int_type = {
-	.hash_key = (ht_hash_key) ht_int_hash,
-	.key_equals = (ht_key_equals) ht_int_equals,
+	.hash_key = (ht_hash_func) ht_int_hash,
+	.key_equals = (ht_equals_func) ht_int_equals,
 };
 
 sct_hash_int ht_uint64_hash(uint64_t *key) {
@@ -43,8 +43,8 @@ int ht_uint64_equals(uint64_t *key, uint64_t *other) {
 }
 
 struct ht_key_type ht_uint64_type = {
-	.hash_key = (ht_hash_key) ht_uint64_hash,
-	.key_equals = (ht_key_equals) ht_uint64_equals,
+	.hash_key = (ht_hash_func) ht_uint64_hash,
+	.key_equals = (ht_equals_func) ht_uint64_equals,
 };
 
 #define NULL_GUARD() \
@@ -497,4 +497,44 @@ int ht_clear(struct ht_hash_table *self) {
 
 exit:
 	return exit_code;
+}
+
+int ht_equals(struct ht_hash_table *self, struct ht_hash_table *other,
+              ht_equals_func value_equals) {
+	int equals = 0;
+	struct array entries = {0};
+	NULL_GUARD();
+
+	if (!other) {
+		EXCEPTION("user: other is NULL");
+		goto exit;
+	}
+
+	if (ht_length(self) != ht_length(other)) {
+		goto exit;
+	}
+
+	if (ht_entries(self, &entries)) {
+		goto exit;
+	}
+
+	char sentinel_obj;
+	void *sentinel = &sentinel_obj;
+
+	for (ssize_t entry_i = 0; entry_i < entries.length; entry_i++) {
+		struct ht_entry *entry = arr_get_index(&entries, entry_i);
+		void *self_value = ht_get(self, entry->key, sentinel);
+		void *other_value = ht_get(other, entry->key, sentinel);
+
+		if (self_value == sentinel || other_value == sentinel \
+				|| !value_equals(self_value, other_value)) {
+			goto exit;
+		}
+	}
+
+	equals = 1;
+
+exit:
+	arr_free(&entries);
+	return equals;
 }

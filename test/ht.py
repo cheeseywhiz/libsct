@@ -128,6 +128,13 @@ def main():
     comment('test_popitem')
     print(key_value_pairs.reversed('popitem_cases'))
 
+    comment('test_equals')
+    print(KVPArray.from_starmap(
+        ((random_string(), random_string())
+         for _ in range(4)),
+        'random_pairs',
+    ))
+
 
 if __name__ == '__main__':
     main()

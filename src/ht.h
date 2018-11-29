@@ -4,12 +4,12 @@
 #include "sct.h"
 #include "arr.h"
 
-typedef sct_hash_int (*ht_hash_key)(void *key);
-typedef int (*ht_key_equals)(void *key, void *other);
+typedef sct_hash_int (*ht_hash_func)(void *key);
+typedef int (*ht_equals_func)(void *key, void *other);
 
 struct ht_key_type {
-	ht_hash_key hash_key;
-	ht_key_equals key_equals;
+	ht_hash_func hash_key;
+	ht_equals_func key_equals;
 };
 
 extern struct ht_key_type ht_string_type;
@@ -82,5 +82,8 @@ int ht_contains(struct ht_hash_table *self, void *key);
 
 int ht_clear(struct ht_hash_table *self);
 /* Clear all entries in the hash table. Returns zero if successful or nonzero otherwise. */
+
+int ht_equals(struct ht_hash_table *self, struct ht_hash_table *other, ht_equals_func value_equals);
+/* Return if two hash tables are equivalent. Order is not significant. */
 
 #endif
