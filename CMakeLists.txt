@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.9.6)
 project(LIBSCT)
+set(CMAKE_C_FLAGS -DSCT_VERSION='\"0.0.0\"')
 add_subdirectory(src)
 add_subdirectory(scttest)
