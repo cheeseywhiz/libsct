@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include "exception.h"
 #include "arr.h"
 #include "slice.h"
+#include "xstdlib.h"
 
 #define NULL_GUARD() \
 	if (!self) { \
@@ -12,10 +12,9 @@
 
 static int arr_grow(struct array *self) {
 	ssize_t new_size = self->size + (self->size >> 1);  /* 1.5x growth factor */
-	void **new_array = realloc(self->array, new_size * sizeof(void*));
+	void **new_array = xrealloc(self->array, new_size * sizeof(void*));
 
 	if (!new_array) {
-		ERRNO();
 		return 1;
 	}
 
@@ -54,6 +53,7 @@ void arr_deep_free(struct array *self, sct_free_func free_item) {
 		free_item(self->array[index]);
 	}
 
+	self->length = 0;
 	arr_free(self);
 }
 
@@ -121,15 +121,13 @@ int arr_slice(struct array *self, struct array *slice, ssize_t start, ssize_t en
 		goto exit;
 	}
 
-	struct slice_bounds bounds = get_slice_bounds(self->length, start, end, step);
+	get_slice_bounds(self->length, &start, &end, &step);
 
 	if (arr_init(slice)) {
 		goto exit;
 	}
 
-	for (ssize_t index = bounds.start;
-	     (step > 0) ? (index < bounds.end) : (index > bounds.end);
-	     index += step) {
+	for (ssize_t index = start; (step > 0) ? (index < end) : (index > end); index += step) {
 		if (arr_append(slice, self->array[index])) {
 			goto exit;
 		}

@@ -2,6 +2,7 @@
 #include "sct_internal.h"
 #include "test.h"
 #include "arr.h"
+#include "xstdlib.h"
 
 UNIT_TEST test_init(struct array *array) {
 	SCORE_INIT();
@@ -92,7 +93,7 @@ UNIT_TEST test_set_index(void) {
 	ssize_t cases[] = {66, -16, -41, 0, -61, 61, -78, 75, -9, -12, -56, -69, -15, -60, 20, 10};
 
 	for (size_t case_i = 0; case_i < ARRAY_LENGTH(cases); case_i++) {
-		ssize_t *item = malloc(sizeof(ssize_t));
+		ssize_t *item = xmalloc(sizeof(ssize_t));
 
 		if (!item) {
 			goto case_end;
@@ -138,7 +139,7 @@ UNIT_TEST test_slice(void) {
 	}
 
 	for (int i = 0; i < 100; i++) {
-		int *item = malloc(sizeof(int));
+		int *item = xmalloc(sizeof(int));
 
 		if (!item) {
 			goto exit;
@@ -234,7 +235,7 @@ UNIT_TEST test_equals(struct array *array) {
 	}
 
 	for (int number_i = 0; number_i < 100; number_i++) {
-		int *item = malloc(sizeof(int));
+		int *item = xmalloc(sizeof(int));
 
 		if (!item) {
 			goto exit;

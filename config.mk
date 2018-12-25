@@ -7,7 +7,7 @@ DIRS:=$(BLD) $(OBJ) $(TEST_OBJ)
 
 SCT_VERSION:=0.0.0
 
-OBJECTS:=exception sll arr slice hash ht fib
+OBJECTS:=exception sll arr slice hash ht fib xstdlib
 TEST_OBJS:=sll arr hash fib ht
 SRC_HDR:=$(OBJECTS) sct_internal sct
 TEST_HDR:=test
@@ -24,4 +24,6 @@ ifeq ($(DEBUG), 1)
 	CFLAGS+=-Og -g3
 	CFLAGS+=-D_SCT_DEBUG
 	VFLAGS+=-v --leak-check=full --track-origins=yes --show-leak-kinds=all
+else
+	CFLAGS+=-DNDEBUG
 endif

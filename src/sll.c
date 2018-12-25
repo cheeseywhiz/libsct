@@ -1,14 +1,14 @@
+#include <assert.h>
 #include <stddef.h>
-#include <stdlib.h>
 #include "exception.h"
 #include "sll.h"
 #include "slice.h"
+#include "xstdlib.h"
 
 static struct sll_node* sll_new_node(void *ptr) {
-	struct sll_node *self = malloc(sizeof(struct sll_node));
+	struct sll_node *self = xmalloc(sizeof(struct sll_node));
 
 	if (!self) {
-		ERRNO();
 		return NULL;
 	}
 
@@ -32,6 +32,7 @@ struct sll_node* sll_append(struct sll_node **self, void *ptr) {
 
 	if (*self) {
 		struct sll_node *last = sll_last(self);
+		assert(last);
 		last->next = new_node;
 	} else {
 		*self = new_node;
@@ -50,6 +51,8 @@ void sll_deep_free(struct sll_node **self, sct_free_func free_ptr) {
 		free_ptr(item_alias->ptr);
 		free(item_alias);
 	}
+
+	*self = NULL;
 }
 
 void sll_free_all(struct sll_node **self) {
@@ -92,11 +95,7 @@ struct sll_node* sll_get_index(struct sll_node **self, ssize_t index) {
 	struct sll_node *item = *self;
 
 	for (ssize_t i = 0; i < index; i++) {
-		if (!item) {
-			EXCEPTION("internal: item %ld is unexpectedly NULL", i);
-			return NULL;
-		}
-
+		assert(item);
 		item = item->next;
 	}
 
@@ -120,10 +119,9 @@ static void** sll_to_array(struct sll_node **self) {
 	}
 
 	ssize_t length = sll_length(self);
-	void **array = malloc(length * sizeof(void*));
+	void **array = xmalloc(length * sizeof(void*));
 
 	if (!array) {
-		ERRNO();
 		return NULL;
 	}
 
@@ -147,7 +145,7 @@ struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, s
 		return NULL;
 	}
 
-	struct slice_bounds bounds = get_slice_bounds(sll_length(self), start, end, step);
+	get_slice_bounds(sll_length(self), &start, &end, &step);
 	void **array = sll_to_array(self);
 
 	if (!array) {
@@ -156,9 +154,7 @@ struct sll_node* sll_slice(struct sll_node **self, ssize_t start, ssize_t end, s
 
 	struct sll_node *slice = NULL;
 
-	for (ssize_t index = bounds.start;
-	     (step > 0) ? (index < bounds.end) : (index > bounds.end);
-	     index += step) {
+	for (ssize_t index = start; (step > 0) ? (index < end) : (index > end); index += step) {
 		if (!sll_append(&slice, array[index])) {
 			sll_shallow_free(&slice);
 			free(array);
@@ -231,19 +227,9 @@ void* sll_pop(struct sll_node **self, ssize_t index) {
 		*self = item->next;
 	} else {
 		struct sll_node *before = sll_get_index(self, index - 1);
-
-		if (!before) {
-			EXCEPTION("internal: before node is NULL");
-			return NULL;
-		}
-
+		assert(before);
 		item = before->next;
-
-		if (!item) {
-			EXCEPTION("internal: node after before is NULL");
-			return NULL;
-		}
-
+		assert(item);
 		before->next = item->next;
 	}
 

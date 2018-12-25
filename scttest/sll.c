@@ -3,6 +3,7 @@
 #include "sct_internal.h"
 #include "test.h"
 #include "sll.h"
+#include "xstdlib.h"
 
 #define CHECK_NODE(node) \
 	if (!(node)) { \
@@ -102,7 +103,7 @@ UNIT_TEST test_set_index(void) {
 	ssize_t cases[] = {66, -16, -41, 0, -61, 61, -78, 75, -9, -12, -56, -69, -15, -60, 20, 10};
 
 	for (size_t case_i = 0; case_i < ARRAY_LENGTH(cases); case_i++) {
-		ssize_t *item = malloc(sizeof(ssize_t));
+		ssize_t *item = xmalloc(sizeof(ssize_t));
 
 		if (!item) {
 			goto case_end;
@@ -143,7 +144,7 @@ UNIT_TEST test_slice(void) {
 	struct sll_node *numbers = NULL;
 
 	for (int i = 0; i < 100; i++) {
-		struct sll_node *new_node = sll_append(&numbers, malloc(sizeof(int)));
+		struct sll_node *new_node = sll_append(&numbers, xmalloc(sizeof(int)));
 
 		if (!(new_node && new_node->ptr)) {
 			goto exit;
@@ -220,7 +221,7 @@ UNIT_TEST test_equals(struct sll_node *list, char **strings, size_t n_strings) {
 	ASSERT(sll_equals(&list_copy, &list));  /* reflexive property */
 
 	for (size_t big_i = 0; big_i < 100; big_i++) {
-		item = sll_append(&numbers, malloc(sizeof(size_t)));
+		item = sll_append(&numbers, xmalloc(sizeof(size_t)));
 
 		if (!(item && item->ptr)) {
 			goto exit;

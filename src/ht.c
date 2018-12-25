@@ -5,6 +5,7 @@
 #include "arr.h"
 #include "ht.h"
 #include "sll.h"
+#include "xstdlib.h"
 
 static int init_buckets(struct ht_hash_table *self);
 
@@ -121,7 +122,7 @@ static int init_buckets(struct ht_hash_table *self) {
 
 		ssize_t bucket = entry->hash & mask;
 		struct sll_node *collisions = arr_get_index(&self->buckets, bucket);
-		ssize_t *entry_i_ptr = malloc(sizeof(ssize_t));
+		ssize_t *entry_i_ptr = xmalloc(sizeof(ssize_t));
 
 		if (!entry_i_ptr) {
 			goto exit;
@@ -311,7 +312,7 @@ int ht_set_item(struct ht_hash_table *self, void *key, void *value) {
 	ssize_t *entry_i_ptr;
 	ssize_t entry_i;
 	method_init(self, key, &hash, &bucket, &collisions, &entry_i_ptr, &entry_i, 0);
-	struct ht_entry *new_entry = malloc(sizeof(struct ht_entry));
+	struct ht_entry *new_entry = xmalloc(sizeof(struct ht_entry));
 
 	if (!new_entry) {
 		goto exit;
@@ -334,7 +335,7 @@ int ht_set_item(struct ht_hash_table *self, void *key, void *value) {
 		goto exit;
 	}
 
-	entry_i_ptr = malloc(sizeof(ssize_t));
+	entry_i_ptr = xmalloc(sizeof(ssize_t));
 
 	if (!entry_i_ptr) {
 		goto exit;

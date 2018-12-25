@@ -1,13 +1,13 @@
-#include <stdlib.h>
 #include <stdint.h>
 #include "fib.h"
 #include "ht.h"
+#include "xstdlib.h"
 
 static struct ht_hash_table *fib_table;
 
 int fib_init_table(void) {
 	int exit_code = 1;
-	fib_table = malloc(sizeof(struct ht_hash_table));
+	fib_table = xmalloc(sizeof(struct ht_hash_table));
 
 	if (!fib_table) {
 		goto exit;
@@ -42,13 +42,13 @@ uint64_t fibonacci(uint64_t n) {
 		answer = fibonacci(n - 1) + fibonacci(n - 2);
 	}
 
-	answer_ptr = malloc(sizeof(uint64_t));
+	answer_ptr = xmalloc(sizeof(uint64_t));
 
 	if (!answer_ptr) {
 		return -1;
 	}
 
-	uint64_t *n_ptr = malloc(sizeof(uint64_t));
+	uint64_t *n_ptr = xmalloc(sizeof(uint64_t));
 
 	if (!n_ptr) {
 		free(answer_ptr);
